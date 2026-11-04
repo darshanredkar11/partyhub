@@ -12,7 +12,10 @@ export default function LoginPage() {
     event.preventDefault(); setBusy(true); setError('');
     try {
       const supabase = getSupabaseBrowserClient();
-      const { error } = await supabase.auth.signInWithOtp({ email:email.trim(), options:{ emailRedirectTo:window.location.origin+'/auth/callback', shouldCreateUser:true } });
+      const requestedNext = new URLSearchParams(window.location.search).get('next');
+      const safeNext = requestedNext?.startsWith('/') && !requestedNext.startsWith('//') ? requestedNext : '/dashboard';
+      const callback = window.location.origin+'/auth/callback?next='+encodeURIComponent(safeNext);
+      const { error } = await supabase.auth.signInWithOtp({ email:email.trim(), options:{ emailRedirectTo:callback, shouldCreateUser:true } });
       if (error) throw error;
       setSent(true);
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to send the sign-in link.'); }
