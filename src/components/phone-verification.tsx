@@ -21,6 +21,7 @@ export function PhoneVerification() {
   const [otp, setOtp] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [pronouns, setPronouns] = useState('');
+  const [sharePronouns, setSharePronouns] = useState(false);
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
@@ -61,6 +62,7 @@ export function PhoneVerification() {
         display_name: displayName.trim(),
         phone_country: selected.iso === 'ZZ' ? null : selected.iso,
         pronouns: pronouns.trim() || null,
+        pronouns_visibility: sharePronouns ? 'party_members' : 'private',
       }).eq('id', user.id);
       if (profileError) throw profileError;
       router.replace('/dashboard');
@@ -86,7 +88,8 @@ export function PhoneVerification() {
       </div>
       <label className="block text-sm font-semibold">Pronouns <span className="font-normal text-black/40">· optional</span></label>
       <input maxLength={40} value={pronouns} onChange={e=>setPronouns(e.target.value)} placeholder="e.g. she/her, he/they, they/them" className="w-full rounded-xl border border-black/15 px-4 py-3"/>
-      <p className="text-xs leading-5 text-black/45">Pronouns are optional and private by default. You can choose to share them with party members later.</p>
+      <label className="flex items-center gap-2 text-xs text-black/55"><input type="checkbox" checked={sharePronouns} onChange={e=>setSharePronouns(e.target.checked)}/> Share my pronouns with accepted party members</label>
+      <p className="text-xs leading-5 text-black/45">Pronouns are optional and private by default. You control whether party members can see them.</p>
       {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
       <button disabled={busy} className="w-full rounded-xl bg-[#211a32] px-5 py-3.5 font-bold text-white disabled:opacity-50">{busy?'Sending code…':'Send verification code'}</button>
     </form> : <form onSubmit={verifyCode} className="mt-7 space-y-4">
