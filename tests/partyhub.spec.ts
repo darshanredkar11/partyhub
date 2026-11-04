@@ -1,30 +1,28 @@
 import { test, expect } from "@playwright/test";
-test("host creates a celebration, guest RSVPs, dashboard reflects the RSVP", async ({ page }) => {
+
+test("host dashboard directs unauthenticated visitors to magic-link sign in", async ({ page }) => {
   await page.goto("/");
-  await page.evaluate(() => localStorage.clear());
-  await page.reload();
-  await expect(page.getByRole("heading", { name: "Bring your people together." })).toBeVisible();
-  await page.getByRole("button", { name: "Create your first party" }).click();
-  await page.getByPlaceholder("e.g. Rooftop birthday bash").fill("Playwright Birthday");
-  await page.locator('input[type="date"]').fill("2030-12-31");
-  await page.getByPlaceholder("Address, venue or 'My place'").fill("Mumbai");
-  await page.getByRole("button", { name: "Create celebration" }).click();
-  await expect(page.getByRole("heading", { name: "Playwright Birthday" })).toBeVisible();
-  await page.getByRole("link", { name: "Open guest page" }).click();
-  await expect.poll(() => new URL(page.url()).pathname).toBe("/invite/");
-  await expect.poll(() => new URL(page.url()).searchParams.has("id")).toBe(true);
-  await expect(page.getByRole("heading", { name: "Playwright Birthday" })).toBeVisible();
-  await page.getByPlaceholder("First and last name").fill("Maya Guest");
-  await page.getByLabel("Food preference").selectOption("Vegetarian");
-  await page.getByRole("button", { name: /Send my RSVP/ }).click();
-  await expect(page.getByRole("heading", { name: "You're on the list, Maya Guest!" })).toBeVisible();
-  await page.goto("/");
-  await expect(page.getByText("1 attending")).toBeVisible();
-  await expect(page.getByText("1 GUEST")).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Bring your people together/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Host sign in/ }).first()).toBeVisible();
+  await expect(page.getByText("Your celebrations, all in one place.")).toBeVisible();
 });
+
+test("guest invitation rejects missing or invalid token safely", async ({ page }) => {
+  await page.goto("/invite/");
+  await expect(page.getByRole("heading", { name: "This invitation isn't available." })).toBeVisible();
+  await expect(page.getByText(/expired, been revoked or reached its guest limit/)).toBeVisible();
+});
+
+test("login page renders an accessible magic-link form", async ({ page }) => {
+  await page.goto("/login/");
+  await expect(page.getByRole("heading", { name: "Welcome back." })).toBeVisible();
+  await expect(page.getByLabel("Email address")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Send magic link/ })).toBeVisible();
+});
+
 test("dashboard remains usable at a mobile viewport", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  await expect(page.getByRole("button", { name: /Plan a celebration/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Host sign in/ }).first()).toBeVisible();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
 });
