@@ -24,7 +24,7 @@ jobs:
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+      SUPABASE_PROJECT_ID: mqzjziaxbbozytumwsca
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,16 +33,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for name in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD SUPABASE_PROJECT_ID; do
+          for name in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD; do
             if [[ -z "${!name:-}" ]]; then
               echo "::error::Missing GitHub Actions secret: ${name}"
               exit 1
             fi
           done
-          if [[ "$SUPABASE_PROJECT_ID" != "mqzjziaxbbozytumwsca" ]]; then
-            echo "::error::SUPABASE_PROJECT_ID does not match the configured PartyHub project."
-            exit 1
-          fi
 
       - name: Install Supabase CLI
         uses: supabase/setup-cli@v1
