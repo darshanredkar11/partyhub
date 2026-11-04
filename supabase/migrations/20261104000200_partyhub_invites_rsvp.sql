@@ -111,3 +111,19 @@ $$;
 
 revoke all on function public.submit_guest_rsvp(text, text, text, integer, text) from public, authenticated;
 grant execute on function public.submit_guest_rsvp(text, text, text, integer, text) to anon, authenticated;
+
+-- Prevent admins from assigning or promoting another account to the immutable host role.
+drop policy if exists party_members_insert_admin on public.party_members;
+create policy party_members_insert_admin on public.party_members
+for insert to authenticated with check (
+  public.is_party_admin(party_id)
+  and role <> 'host'
+  and user_id <> (select auth.uid())
+);
+drop policy if exists party_members_update_admin on public.party_members;
+create policy party_members_update_admin on public.party_members
+for update to authenticated using (
+  public.is_party_admin(party_id) and role <> 'host'
+) with check (
+  public.is_party_admin(party_id) and role <> 'host'
+);
