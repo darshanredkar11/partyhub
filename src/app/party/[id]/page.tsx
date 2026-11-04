@@ -9,9 +9,9 @@ export default async function PartyPage({params}:{params:Promise<{id:string}>}) 
   if(!user) redirect('/login');
   const {data:profile}=await supabase.from('profiles').select('display_name,phone_verified_at').eq('id',user.id).maybeSingle();
   if(!profile?.phone_verified_at) redirect('/onboarding/phone');
-  const {data:party}=await supabase.from('parties').select('id,title,starts_at,description').eq('id',id).maybeSingle();
+  const {data:party}=await supabase.from('parties').select('id,title,starts_at,description,venue_label,venue_address,ends_at,arrival_from,arrival_until,timezone').eq('id',id).maybeSingle();
   if(!party)notFound();
-  const {data:membership}=await supabase.from('party_members').select('id').eq('party_id',id).eq('user_id',user.id).eq('status','accepted').maybeSingle();
+  const {data:membership}=await supabase.from('party_members').select('id,role').eq('party_id',id).eq('user_id',user.id).eq('status','accepted').maybeSingle();
   if(!membership)notFound();
-  return <PartyRoom party={party} userId={user.id} displayName={profile.display_name||'Party guest'} membershipId={membership.id}/>;
+  return <PartyRoom party={party} userId={user.id} displayName={profile.display_name||'Party guest'} membershipId={membership.id} isAdmin={membership.role==='host'||membership.role==='cohost'}/>;
 }
