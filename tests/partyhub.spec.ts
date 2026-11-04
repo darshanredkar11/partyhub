@@ -10,6 +10,8 @@ test("host creates a celebration, guest RSVPs, dashboard reflects the RSVP", asy
   await page.getByRole("button", { name: "Create celebration" }).click();
   await expect(page.getByRole("heading", { name: "Playwright Birthday" })).toBeVisible();
   await page.getByRole("link", { name: "Open guest page" }).click();
+  console.log("invite-debug", page.url(), await page.evaluate(() => localStorage.getItem("partyhub.demo.parties.v1")));
+  await expect(page).toHaveURL(/\\/invite\\/\\?id=/);
   await expect(page.getByRole("heading", { name: "Playwright Birthday" })).toBeVisible();
   await page.getByPlaceholder("First and last name").fill("Maya Guest");
   await page.getByLabel("Food preference").selectOption("Vegetarian");
