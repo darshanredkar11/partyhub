@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { CalendarDays, Plus, PartyPopper, ArrowUpRight } from 'lucide-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { generateInvitationToken, hashInvitationToken, whatsappShareUrl } from '@/lib/invitations';
@@ -18,7 +18,7 @@ export function PartyDashboard({ initialParties, userId, displayName }:{initialP
   const [error,setError]=useState('');
   const [share,setShare]=useState('');
 
-  async function createParty(event:React.FormEvent<HTMLFormElement>) {
+  async function createParty(event:FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setError(''); setShare('');
     try {
       const supabase=getSupabaseBrowserClient();
