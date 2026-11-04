@@ -464,3 +464,9 @@ comment on table public.parties is 'PartyHub events. Venue ciphertext is selecti
 comment on table public.invitations is 'Only SHA-256 hashes of high-entropy invitation tokens are stored.';
 comment on table public.guest_rsvps is 'Guest-first RSVP records created through submit_guest_rsvp RPC.';
 comment on table public.media_assets is 'Private gallery metadata; media bytes live in the private party-media bucket.';
+
+-- Backfill profiles for auth accounts that existed before this migration.
+insert into public.profiles (id, email, display_name)
+select id, email, coalesce(raw_user_meta_data ->> 'display_name', '')
+from auth.users
+on conflict (id) do nothing;
