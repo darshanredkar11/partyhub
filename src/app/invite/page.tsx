@@ -1,15 +1,43 @@
 "use client";
-import {useEffect,useState} from "react";
-import {CalendarDays,Clock3,MapPin,PartyPopper,CheckCircle2} from "lucide-react";
-type Guest={id:string;name:string;status:"yes"|"maybe"|"no";food:string;note:string};
-type Party={id:string;title:string;date:string;start:string;end:string;venue:string;note:string;guests:Guest[];createdAt:number};
-const STORE="partyhub.demo.parties.v1";
-export default function InvitePage(){
- const [party,setParty]=useState<Party|null>(null),[missing,setMissing]=useState(false),[name,setName]=useState(""),[status,setStatus]=useState<"yes"|"maybe"|"no">("yes"),[food,setFood]=useState("No preference"),[note,setNote]=useState(""),[sent,setSent]=useState(false);
- useEffect(()=>{const id=new URLSearchParams(location.search).get("id");try{const all=JSON.parse(localStorage.getItem(STORE)||"[]") as Party[];const found=all.find(p=>p.id===id);if(found)setParty(found);else setMissing(true)}catch{setMissing(true)}},[]);
- function submit(e:React.FormEvent){e.preventDefault();if(!party||!name.trim())return;const guest:Guest={id:crypto.randomUUID(),name:name.trim(),status,food,note};const all=JSON.parse(localStorage.getItem(STORE)||"[]") as Party[];const updated=all.map(p=>p.id===party.id?{...p,guests:[...p.guests,guest]}:p);localStorage.setItem(STORE,JSON.stringify(updated));setParty({...party,guests:[...party.guests,guest]});setSent(true)}
- if(missing)return <main className="invite-page"><div className="invite-card"><div className="brand"><span className="brand-mark"><PartyPopper size={20}/></span> partyhub</div><h1>Oops, this invite isn't here.</h1><p>Ask your host to send you a fresh invitation link.</p><a href="/" className="primary-btn link-btn">Go to PartyHub</a></div></main>;
- if(!party)return <main className="invite-page"><div className="invite-card">Loading your invitation…</div></main>;
- return <main className="invite-page"><div className="invite-card"><div className="brand"><span className="brand-mark"><PartyPopper size={20}/></span> partyhub</div><div className="invite-spark">✳</div><div className="eyebrow">YOU'RE ON THE LIST</div><h1>{party.title}</h1><p className="invite-intro">A little get-together, a lot of memories. We'd love to have you there.</p><div className="invite-details"><span><CalendarDays size={17}/>{new Date(party.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</span><span><Clock3 size={17}/>{party.start} – {party.end}</span>{party.venue&&<span><MapPin size={17}/>{party.venue}</span>}</div>{party.note&&<div className="host-note"><strong>A note from your host</strong><p>{party.note}</p></div>}
- {sent?<div className="success-state"><CheckCircle2 size={34}/><h2>You're on the list, {name}!</h2><p>Your RSVP has been saved on this device.</p><button className="secondary-btn" onClick={()=>setSent(false)}>Update RSVP</button></div>:<form className="rsvp-form" onSubmit={submit}><h2>Are you coming?</h2><label>Your name<input required value={name} onChange={e=>setName(e.target.value)} placeholder="First and last name"/></label><div className="rsvp-options"><button type="button" className={status==="yes"?"selected":""} onClick={()=>setStatus("yes")}>🙌 Count me in</button><button type="button" className={status==="maybe"?"selected":""} onClick={()=>setStatus("maybe")}>🤔 Maybe</button><button type="button" className={status==="no"?"selected":""} onClick={()=>setStatus("no")}>💌 Can't make it</button></div><label>Food preference<select value={food} onChange={e=>setFood(e.target.value)}><option>No preference</option><option>Vegetarian</option><option>Vegan</option><option>Jain</option><option>Other / I'll message the host</option></select></label><label>Anything the host should know? <span className="optional">OPTIONAL</span><textarea rows={2} value={note} onChange={e=>setNote(e.target.value)} placeholder="Allergies, plus-one, a little message…"/></label><button className="primary-btn full-btn" type="submit">Send my RSVP →</button></form>}<p className="invite-foot">A private celebration, shared with your people. ✦</p></div></main>;
+import { useEffect, useState } from "react";
+import { CalendarDays, Clock3, PartyPopper, CheckCircle2, Users, ArrowLeft } from "lucide-react";
+import { getInvite, submitRsvp } from "@/lib/partyhub";
+
+type Invite = Awaited<ReturnType<typeof getInvite>>;
+const dateText = (value: string, timezone: string) => new Intl.DateTimeFormat("en-IN", { weekday:"long", day:"numeric", month:"long", year:"numeric", timeZone:timezone }).format(new Date(value));
+const timeText = (value: string, timezone: string) => new Intl.DateTimeFormat("en-IN", { hour:"numeric", minute:"2-digit", timeZone:timezone }).format(new Date(value));
+
+export default function InvitePage() {
+  const [token,setToken]=useState("");
+  const [party,setParty]=useState<Invite|null>(null);
+  const [missing,setMissing]=useState(false);
+  const [loading,setLoading]=useState(true);
+  const [name,setName]=useState("");
+  const [response,setResponse]=useState<"yes"|"maybe"|"no">("yes");
+  const [count,setCount]=useState(1);
+  const [diet,setDiet]=useState("none");
+  const [sent,setSent]=useState(false);
+  const [busy,setBusy]=useState(false);
+  const [error,setError]=useState("");
+
+  useEffect(()=>{
+    const value=new URLSearchParams(location.search).get("token")??"";
+    setToken(value);
+    if(!value){setMissing(true);setLoading(false);return;}
+    getInvite(value).then(setParty).catch(()=>setMissing(true)).finally(()=>setLoading(false));
+  },[]);
+
+  async function submit(e:React.FormEvent){
+    e.preventDefault();if(!token||!name.trim())return;
+    setBusy(true);setError("");
+    try{await submitRsvp({token,name,response,guestCount:count,dietaryType:diet});setSent(true);}
+    catch(e){setError(e instanceof Error?e.message:"We couldn't save your RSVP. Please try again.");}
+    finally{setBusy(false);}
+  }
+
+  if(loading)return <main className="invite-page"><div className="invite-card">Loading your invitation…</div></main>;
+  if(missing||!party)return <main className="invite-page"><div className="invite-card"><div className="brand"><span className="brand-mark"><PartyPopper size={20}/></span> partyhub</div><h1>This invitation isn't available.</h1><p>It may have expired, been revoked or reached its guest limit. Ask your host for a fresh link.</p><a href="/" className="secondary-btn"><ArrowLeft size={15}/> PartyHub home</a></div></main>;
+
+  return <main className="invite-page"><div className="invite-card"><div className="brand"><span className="brand-mark"><PartyPopper size={20}/></span> partyhub</div><div className="invite-spark">✳</div><div className="eyebrow">YOU'RE INVITED</div><h1>{party.title}</h1><p className="invite-intro">{party.description||"A little get-together, a lot of memories. We'd love to have you there."}</p><div className="invite-details"><span><CalendarDays size={17}/>{dateText(party.starts_at,party.timezone)}</span><span><Clock3 size={17}/>{timeText(party.starts_at,party.timezone)} – {timeText(party.ends_at,party.timezone)}</span>{party.arrival_from&&party.arrival_until&&<span><Clock3 size={17}/>Arrival {timeText(party.arrival_from,party.timezone)} – {timeText(party.arrival_until,party.timezone)}</span>}</div>
+  {sent?<div className="success-state"><CheckCircle2 size={34}/><h2>Thanks, {name}!</h2><p>Your response has been saved. If you need to change it, submit the same name again using this invite link.</p><button className="secondary-btn" onClick={()=>setSent(false)}>Update my RSVP</button></div>:<form className="rsvp-form" onSubmit={submit}><h2>Are you coming?</h2><label>Your name<input required maxLength={100} value={name} onChange={e=>setName(e.target.value)} placeholder="First and last name"/></label><div className="rsvp-options"><button type="button" className={response==="yes"?"selected":""} onClick={()=>setResponse("yes")}>🙌 Count me in</button><button type="button" className={response==="maybe"?"selected":""} onClick={()=>setResponse("maybe")}>🤔 Maybe</button><button type="button" className={response==="no"?"selected":""} onClick={()=>setResponse("no")}>💌 Can't make it</button></div><label><Users size={15}/> Number of guests including you<select value={count} onChange={e=>setCount(Number(e.target.value))}>{Array.from({length:10},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select></label><label>Food preference<select value={diet} onChange={e=>setDiet(e.target.value)}><option value="none">No preference</option><option value="vegetarian">Vegetarian</option><option value="vegan">Vegan</option><option value="jain">Jain</option><option value="non_vegetarian">Non-vegetarian</option><option value="other">Other / I'll message the host</option></select></label>{error&&<div className="notice error-notice" role="alert">{error}</div>}<button className="primary-btn full-btn" type="submit" disabled={busy}>{busy?"Saving…":"Send my RSVP →"}</button></form>}<p className="invite-foot">A private celebration, shared with your people. ✦</p></div></main>;
 }
