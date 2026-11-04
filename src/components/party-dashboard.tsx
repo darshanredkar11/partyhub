@@ -13,6 +13,12 @@ export function PartyDashboard({ initialParties, userId, displayName }:{initialP
   const [title,setTitle]=useState('');
   const [date,setDate]=useState('');
   const [time,setTime]=useState('19:00');
+  const [endTime,setEndTime]=useState('23:00');
+  const [arrivalFrom,setArrivalFrom]=useState('19:00');
+  const [arrivalUntil,setArrivalUntil]=useState('20:00');
+  const [description,setDescription]=useState('');
+  const [venueLabel,setVenueLabel]=useState('');
+  const [venueAddress,setVenueAddress]=useState('');
   const [partyType,setPartyType]=useState('house_party');
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState('');
@@ -23,10 +29,17 @@ export function PartyDashboard({ initialParties, userId, displayName }:{initialP
     try {
       const supabase=getSupabaseBrowserClient();
       const startsAt=new Date(date+'T'+time).toISOString();
-      const endsAt=new Date(new Date(startsAt).getTime()+5*60*60*1000).toISOString();
+      let endDate=new Date(date+'T'+endTime);
+      const startDate=new Date(startsAt);
+      if(endDate<=startDate) endDate=new Date(endDate.getTime()+24*60*60*1000);
+      const endsAt=endDate.toISOString();
+      const arrivalStart=new Date(date+'T'+arrivalFrom);
+      const arrivalEnd=new Date(date+'T'+arrivalUntil);
+      if(arrivalEnd<arrivalStart) arrivalEnd.setDate(arrivalEnd.getDate()+1);
       const {data:party,error:partyError}=await supabase.from('parties').insert({
-        host_id:userId,title:title.trim(),party_type:partyType,starts_at:startsAt,ends_at:endsAt,
-        arrival_from:startsAt,arrival_until:new Date(new Date(startsAt).getTime()+60*60*1000).toISOString(),
+        host_id:userId,title:title.trim(),description:description.trim(),party_type:partyType,starts_at:startsAt,ends_at:endsAt,
+        arrival_from:arrivalStart.toISOString(),arrival_until:arrivalEnd.toISOString(),
+        venue_label:venueLabel.trim()||null,venue_address:venueAddress.trim()||null,
         timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,status:'published'
       }).select('id,title,starts_at,status,timezone').single();
       if(partyError) throw partyError;
@@ -44,7 +57,7 @@ export function PartyDashboard({ initialParties, userId, displayName }:{initialP
       const inviteUrl=window.location.origin+'/invite/'+token;
       setParties(current=>[party,...current]);
       setShare(whatsappShareUrl('You’re invited to '+party.title+'! RSVP here: '+inviteUrl));
-      setTitle('');setShowForm(false);
+      setTitle('');setDescription('');setVenueLabel('');setVenueAddress('');setShowForm(false);
     } catch(cause) { setError(cause instanceof Error?cause.message:'Could not create party.'); }
     finally {setBusy(false);}
   }
@@ -62,9 +75,15 @@ export function PartyDashboard({ initialParties, userId, displayName }:{initialP
         <label className="sm:col-span-2 text-sm font-semibold">Party name<input required maxLength={120} value={title} onChange={e=>setTitle(e.target.value)} placeholder="Friday chaos, birthday bash…" className="mt-2 w-full rounded-xl border border-black/15 px-4 py-3 font-normal"/></label>
         <label className="text-sm font-semibold">Date<input required type="date" min={new Date().toISOString().slice(0,10)} value={date} onChange={e=>setDate(e.target.value)} className="mt-2 w-full rounded-xl border border-black/15 px-4 py-3 font-normal"/></label>
         <label className="text-sm font-semibold">Start time<input required type="time" value={time} onChange={e=>setTime(e.target.value)} className="mt-2 w-full rounded-xl border border-black/15 px-4 py-3 font-normal"/></label>
+        <label className="text-sm font-semibold">End time<input required type="time" value={endTime} onChange={e=>setEndTime(e.target.value)} className="mt-2 w-full rounded-xl border border-black/15 px-4 py-3 font-normal"/></label>
+        <label className="text-sm font-semibold">Arrival window starts<input required type="time" value={arrivalFrom} onChange={e=>setArrivalFrom(e.target.value)} className="mt-2 w-full rounded-xl border border-black/15 px-4 py-3 font-normal"/></label>
+        <label className="text-sm font-semibold">Arrival window ends<input required type="time" value={arrivalUntil} onChange={e=>setArrivalUntil(e.target.value)} className="mt-2 w-full rounded-xl border border-black/15 px-4 py-3 font-normal"/></label>
+        <label className="sm:col-span-2 text-sm font-semibold">Description<textarea maxLength={5000} value={description} onChange={e=>setDescription(e.target.value)} placeholder="Dress code, what to bring, special instructions…" className="mt-2 min-h-20 w-full rounded-xl border border-black/15 px-4 py-3 font-normal"/></label>
+        <label className="text-sm font-semibold">Venue name<input maxLength={160} value={venueLabel} onChange={e=>setVenueLabel(e.target.value)} placeholder="Your place / venue" className="mt-2 w-full rounded-xl border border-black/15 px-4 py-3 font-normal"/></label>
+        <label className="text-sm font-semibold">Private venue address<input maxLength={500} value={venueAddress} onChange={e=>setVenueAddress(e.target.value)} placeholder="Visible to accepted members only" className="mt-2 w-full rounded-xl border border-black/15 px-4 py-3 font-normal"/></label>
         <label className="sm:col-span-2 text-sm font-semibold">Party vibe<select value={partyType} onChange={e=>setPartyType(e.target.value)} className="mt-2 w-full rounded-xl border border-black/15 px-4 py-3 font-normal"><option value="house_party">House party</option><option value="birthday">Birthday</option><option value="dinner">Dinner party</option><option value="game_night">Game night</option><option value="celebration">Celebration</option><option value="other">Something else</option></select></label>
       </div>
-      <p className="mt-4 text-xs text-black/45">You can add venue details, co-hosts and a full schedule in the party room. Your first invite link supports up to 1,000 RSVPs.</p>
+      <p className="mt-4 text-xs text-black/45">Your venue address is private to accepted members and is not shown on the public invite preview. Your first invite link supports up to 1,000 RSVPs.</p>
       <div className="mt-5 flex gap-3"><button disabled={busy} className="rounded-full bg-[#211a32] px-5 py-3 font-bold text-white disabled:opacity-50">{busy?'Creating…':'Create & invite'}</button><button type="button" onClick={()=>setShowForm(false)} className="rounded-full border border-black/15 px-5 py-3 text-sm">Cancel</button></div>
     </form>}
     <section className="mt-10"><h2 className="text-xl font-black">Your parties</h2>
