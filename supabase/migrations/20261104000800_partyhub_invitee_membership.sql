@@ -12,6 +12,9 @@ begin
   if (select auth.uid()) is null then
     raise exception 'Sign in is required to join the party space';
   end if;
+  if not exists(select 1 from auth.users u where u.id=(select auth.uid()) and u.phone_confirmed_at is not null) then
+    raise exception 'Verify your mobile number before joining a party';
+  end if;
   if p_token is null or char_length(p_token) < 32 or char_length(p_token) > 256 then
     raise exception 'Invalid invitation';
   end if;
@@ -33,11 +36,11 @@ begin
   select coalesce(p.display_name,'Party guest') into v_display_name
   from public.profiles p where p.id=(select auth.uid());
 
-  insert into public.party_members(party_id,user_id,role,status)
+  insert into public.party_members as existing_member(party_id,user_id,role,status)
   values(v_invitation.party_id,(select auth.uid()),'guest','accepted')
   on conflict (party_id,user_id) do update
     set status='accepted'
-    where public.party_members.role<>'host';
+    where existing_member.role<>'host';
 
   insert into public.party_activities(party_id,actor_user_id,actor_label,activity_type,message)
   values(v_invitation.party_id,(select auth.uid()),v_display_name,'guest_joined',v_display_name || ' joined the party space');
