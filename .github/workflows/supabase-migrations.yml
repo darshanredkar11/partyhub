@@ -3,7 +3,7 @@ name: PartyHub database migrations
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, initial-partyhub-draft]
     paths:
       - "supabase/migrations/**"
       - "supabase/config.toml"
