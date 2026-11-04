@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
 test("host creates a celebration, guest RSVPs, dashboard reflects the RSVP", async ({ page }) => {
-  await page.addInitScript(() => localStorage.clear());
   await page.goto("/");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
   await expect(page.getByRole("heading", { name: "Bring your people together." })).toBeVisible();
   await page.getByRole("button", { name: "Create your first party" }).click();
   await page.getByPlaceholder("e.g. Rooftop birthday bash").fill("Playwright Birthday");
@@ -10,7 +11,6 @@ test("host creates a celebration, guest RSVPs, dashboard reflects the RSVP", asy
   await page.getByRole("button", { name: "Create celebration" }).click();
   await expect(page.getByRole("heading", { name: "Playwright Birthday" })).toBeVisible();
   await page.getByRole("link", { name: "Open guest page" }).click();
-  console.log("invite-debug", page.url(), await page.evaluate(() => localStorage.getItem("partyhub.demo.parties.v1")));
   await expect.poll(() => new URL(page.url()).pathname).toBe("/invite/");
   await expect.poll(() => new URL(page.url()).searchParams.has("id")).toBe(true);
   await expect(page.getByRole("heading", { name: "Playwright Birthday" })).toBeVisible();
