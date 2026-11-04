@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
@@ -27,10 +27,12 @@ export function PhoneVerification() {
 
   const selected = countries.find(item => item.iso === country) ?? countries[0];
 
-  async function sendCode(event: React.FormEvent<HTMLFormElement>) {
+  async function sendCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true); setError('');
-    const normalized = selected.dial + number.replace(/[^0-9]/g, '');
+    const raw = number.trim();
+    const digits = raw.replace(/[^0-9]/g, '').replace(/^0+/, '');
+    const normalized = country === 'ZZ' ? (raw.startsWith('+') ? '+' + raw.slice(1).replace(/[^0-9]/g, '') : '+' + digits) : selected.dial + digits;
     if (!/^\+[1-9]\d{7,14}$/.test(normalized)) {
       setError('Enter a valid international phone number, including area code.');
       setBusy(false); return;
