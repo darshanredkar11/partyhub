@@ -16,6 +16,13 @@ jobs:
         run: npm install
       - name: Type check
         run: npm run typecheck
+      - name: Start local Supabase
+        run: npx --yes supabase@latest start
+      - name: Apply and validate database migrations
+        run: npx --yes supabase@latest db reset
+      - name: Stop local Supabase
+        if: always()
+        run: npx --yes supabase@latest stop --no-backup
       - name: Lint
         run: npm run lint
       - name: Production build
