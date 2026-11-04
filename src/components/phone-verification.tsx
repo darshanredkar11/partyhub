@@ -13,7 +13,7 @@ const countries = [
   { name: 'Other', iso: 'ZZ', dial: '+' },
 ];
 
-export function PhoneVerification() {
+export function PhoneVerification({nextPath='/dashboard'}:{nextPath?:string}) {
   const router = useRouter();
   const [country, setCountry] = useState('IN');
   const [number, setNumber] = useState('');
@@ -49,7 +49,7 @@ export function PhoneVerification() {
     } finally { setBusy(false); }
   }
 
-  async function verifyCode(event: React.FormEvent<HTMLFormElement>) {
+  async function verifyCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true); setError('');
     try {
@@ -65,7 +65,7 @@ export function PhoneVerification() {
         pronouns_visibility: sharePronouns ? 'party_members' : 'private',
       }).eq('id', user.id);
       if (profileError) throw profileError;
-      router.replace('/dashboard');
+      router.replace(nextPath);
       router.refresh();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Phone verification failed.');
