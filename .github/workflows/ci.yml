@@ -16,6 +16,8 @@ jobs:
         run: npm install
       - name: Type check
         run: npm run typecheck
+      - name: Unit tests
+        run: npm test
       - name: Start local Supabase
         run: npx --yes supabase@latest start
       - name: Apply and validate database migrations
