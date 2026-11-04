@@ -32,7 +32,7 @@ export default function Home() {
     if (!supabaseConfigured()) { setLoaded(true); return; }
     const client = supabase();
     void refresh();
-    const { data: listener } = client.auth.onAuthStateChange(() => { void refresh(); });
+    const { data: listener } = client.auth.onAuthStateChange(() => { queueMicrotask(() => { void refresh(); }); });
     return () => listener.subscription.unsubscribe();
   }, [refresh]);
 
