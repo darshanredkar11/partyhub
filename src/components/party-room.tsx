@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Camera, Dice5, Gift, Heart, Share2, Sparkles, Trophy, Upload } from 'lucide-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -45,22 +45,39 @@ export function PartyRoom({party,userId,displayName,membershipId,isAdmin}:{party
   const [message,setMessage]=useState('');
   const supabase=useMemo(()=>getSupabaseBrowserClient(),[]);
 
-  async function load() {
-    const [a,b,c,d,e]=await Promise.all([
+  const load = useCallback(async () => {
+    const [a,b,c,d,e,g]=await Promise.all([
       supabase.from('party_activities').select('id,message,created_at').eq('party_id',party.id).order('created_at',{ascending:false}).limit(20),
       supabase.from('party_awards').select('id,title,description,nominees,is_open').eq('party_id',party.id).order('created_at',{ascending:false}),
       supabase.from('media_assets').select('id,storage_path,caption').eq('party_id',party.id).is('deleted_at',null).order('created_at',{ascending:false}),
       supabase.from('party_passport_stamps').select('id,stamp_key,stamp_label,created_at').eq('party_id',party.id).eq('user_id',userId).order('created_at',{ascending:false}),
-      supabase.from('party_schedule_items').select('id,title,starts_at,notes').eq('party_id',party.id).order('starts_at',{ascending:true})
+      supabase.from('party_schedule_items').select('id,title,starts_at,notes').eq('party_id',party.id).order('starts_at',{ascending:true}),
+      supabase.from('party_game_entries').select('entry_type,content,created_at').eq('party_id',party.id).eq('user_id',userId).in('entry_type',['mission_assigned','mission_completed','bingo_progress']).order('created_at',{ascending:false}).limit(20)
     ]);
     setStamps(d.data??[]);setSchedule(e.data??[]);
     setActivities(a.data??[]);setAwards((b.data??[]).map((x:any)=>({...x,nominees:Array.isArray(x.nominees)?x.nominees:[]})));setPhotos(c.data??[]);
     const urls:Record<string,string>={};
     for(const p of c.data??[]) {const {data}=await supabase.storage.from('party-media').createSignedUrl(p.storage_path,900);if(data?.signedUrl)urls[p.id]=data.signedUrl;}
     setPhotoUrls(urls);
+    const gameEntries=g.data??[];
+    const lastMission=gameEntries.find((entry:any)=>entry.entry_type==='mission_assigned'||entry.entry_type==='mission_completed');
+    if(lastMission){setMission(lastMission.content?.mission??'');setMissionDone(lastMission.entry_type==='mission_completed');}
+    const lastBingo=gameEntries.find((entry:any)=>entry.entry_type==='bingo_progress');
+    if(lastBingo){setBingo(lastBingo.content?.tiles??[]);setBingoDone(lastBingo.content?.completedTiles??[]);}
     if(isAdmin){const {data}=await supabase.from('guest_rsvps').select('id,display_name,response,guest_count,dietary_type,created_at').eq('party_id',party.id).order('created_at',{ascending:false});setRsvps(data??[]);}
-  }
-  useEffect(()=>{void load();},[]);
+  },[supabase,party.id,userId,isAdmin]);
+  useEffect(()=>{
+    void load();
+    let channel=supabase.channel('party-room-'+party.id)
+      .on('postgres_changes',{event:'*',schema:'public',table:'party_activities',filter:'party_id=eq.'+party.id},()=>{void load();})
+      .on('postgres_changes',{event:'*',schema:'public',table:'party_awards',filter:'party_id=eq.'+party.id},()=>{void load();})
+      .on('postgres_changes',{event:'*',schema:'public',table:'party_schedule_items',filter:'party_id=eq.'+party.id},()=>{void load();})
+      .on('postgres_changes',{event:'*',schema:'public',table:'party_passport_stamps',filter:'party_id=eq.'+party.id},()=>{void load();})
+      .on('postgres_changes',{event:'*',schema:'public',table:'media_assets',filter:'party_id=eq.'+party.id},()=>{void load();});
+    if(isAdmin)channel=channel.on('postgres_changes',{event:'*',schema:'public',table:'guest_rsvps',filter:'party_id=eq.'+party.id},()=>{void load();});
+    channel.subscribe();
+    return ()=>{void supabase.removeChannel(channel);};
+  },[load,supabase,party.id,isAdmin]);
 
   async function activity(type:string,text:string) {
     await supabase.from('party_activities').insert({party_id:party.id,actor_user_id:userId,actor_label:displayName,activity_type:type,message:text});
@@ -73,7 +90,7 @@ export function PartyRoom({party,userId,displayName,membershipId,isAdmin}:{party
     const value=missions[Math.floor(Math.random()*missions.length)];setMission(value);setMissionDone(false);
     const {error}=await supabase.from('party_game_entries').insert({party_id:party.id,user_id:userId,entry_type:'mission_assigned',content:{mission:value,status:'assigned'}});
     if(error){setMessage(error.message);return;}
-    await activity('mission_completed',displayName+' picked a secret mission');
+    await activity('game_started',displayName+' picked a secret mission');
   }
   function drawBingo(){setBingo([...bingoTiles].sort(()=>Math.random()-.5).slice(0,9));setBingoDone([]);}
   async function completeBingo(){
