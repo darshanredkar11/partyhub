@@ -3,8 +3,6 @@ name: PartyHub CI
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main, feature/supabase-pwa-foundation]
 
 jobs:
   validate:
