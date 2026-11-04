@@ -24,7 +24,7 @@ export function GuestRsvp({token,partyTitle}:{token:string;partyTitle:string}) {
     } catch(cause) {setError(cause instanceof Error?cause.message:'Could not submit your RSVP.');}
     finally {setBusy(false);}
   }
-  if(done) return <div className="rounded-2xl bg-emerald-50 p-6"><p className="text-2xl">🎉</p><h2 className="mt-2 text-xl font-black">You’re on the list!</h2><p className="mt-2 text-sm text-black/60">Your RSVP for {partyTitle} has been sent to the host.</p></div>;
+  if(done) return <div className="rounded-2xl bg-emerald-50 p-6"><p className="text-2xl">🎉</p><h2 className="mt-2 text-xl font-black">You’re on the list!</h2><p className="mt-2 text-sm text-black/60">Your RSVP for {partyTitle} has been sent to the host.</p><a href={'/join/'+token} className="mt-5 inline-block rounded-full bg-violet-700 px-5 py-3 text-sm font-bold text-white">Join the party space (optional)</a><p className="mt-3 text-xs text-black/45">RSVP is complete. Joining the private gallery and games is optional and requires an account with a verified mobile number.</p></div>;
   return <form onSubmit={submit} className="rounded-3xl border border-black/10 bg-white p-6 shadow-xl">
     <h2 className="text-xl font-black">Are you coming?</h2>
     <label className="mt-5 block text-sm font-semibold">What should we call you?<input required maxLength={100} value={name} onChange={e=>setName(e.target.value)} placeholder="Your name" className="mt-2 w-full rounded-xl border border-black/15 px-4 py-3 font-normal"/></label>
