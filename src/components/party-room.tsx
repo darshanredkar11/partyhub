@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Camera, Copy, Dice5, Gift, Heart, Share2, Sparkles, Trophy, Upload } from 'lucide-react';
+import { ArrowLeft, Camera, Dice5, Gift, Heart, Share2, Sparkles, Trophy, Upload } from 'lucide-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { generateInvitationToken, hashInvitationToken, whatsappShareUrl } from '@/lib/invitations';
 
@@ -53,7 +53,7 @@ export function PartyRoom({party,userId,displayName,membershipId,isAdmin}:{party
       supabase.from('party_passport_stamps').select('id,stamp_key,stamp_label,created_at').eq('party_id',party.id).eq('user_id',userId).order('created_at',{ascending:false}),
       supabase.from('party_schedule_items').select('id,title,starts_at,notes').eq('party_id',party.id).order('starts_at',{ascending:true})
     ]);
-    setStamps(d.data??[]);
+    setStamps(d.data??[]);setSchedule(e.data??[]);
     setActivities(a.data??[]);setAwards((b.data??[]).map((x:any)=>({...x,nominees:Array.isArray(x.nominees)?x.nominees:[]})));setPhotos(c.data??[]);
     const urls:Record<string,string>={};
     for(const p of c.data??[]) {const {data}=await supabase.storage.from('party-media').createSignedUrl(p.storage_path,900);if(data?.signedUrl)urls[p.id]=data.signedUrl;}
