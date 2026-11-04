@@ -11,7 +11,7 @@ export default async function PhoneOnboardingPage({searchParams}:{searchParams:P
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
   const { data: profile } = await supabase.from('profiles').select('phone_verified_at').eq('id',user.id).maybeSingle();
-  if (profile?.phone_verified_at) redirect('/dashboard');
+  if (profile?.phone_verified_at) redirect(nextPath);
   return <main className="flex min-h-screen flex-col items-center justify-center gap-5 bg-[#fffaf4] px-5 py-10 text-[#171522]">
     <Link href="/" className="text-2xl font-black">partyhub<span className="text-violet-600">.</span></Link>
     <PhoneVerification nextPath={nextPath}/>
