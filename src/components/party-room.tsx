@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Camera, Copy, Dice5, Gift, Heart, Share2, Sparkles, Trophy, Upload } from 'lucide-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -111,7 +111,7 @@ export function PartyRoom({party,userId,displayName,membershipId,isAdmin}:{party
     if(error){setMessage(error.message);return;}
     setCompliment('');await earnStamp('compliment','Hype person');await activity('stamp_earned',displayName+' dropped some party love');setMessage('Compliment dropped. Keep the good energy going.');
   }
-  async function addScheduleItem(event:React.FormEvent<HTMLFormElement>){
+  async function addScheduleItem(event:FormEvent<HTMLFormElement>){
     event.preventDefault();if(!scheduleTitle.trim()||!scheduleTime)return;
     const {error}=await supabase.from('party_schedule_items').insert({party_id:party.id,title:scheduleTitle.trim(),starts_at:new Date(scheduleTime).toISOString(),notes:scheduleNotes.trim(),created_by:userId});
     if(error){setMessage(error.message);return;}setScheduleTitle('');setScheduleNotes('');await activity('schedule_updated',displayName+' updated the party schedule');
