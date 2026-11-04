@@ -33,10 +33,19 @@ export async function createParty(input: {
 }) {
   const user = await currentUser();
   if (!user) throw new Error("Sign in to create a celebration.");
-  const startsAt = new Date(input.date + "T" + input.start).toISOString();
-  const endsAt = new Date(input.date + "T" + input.end).toISOString();
-  const arrivalFrom = input.arrivalFrom ? new Date(input.date + "T" + input.arrivalFrom).toISOString() : null;
-  const arrivalUntil = input.arrivalUntil ? new Date(input.date + "T" + input.arrivalUntil).toISOString() : null;
+  if (Boolean(input.arrivalFrom) !== Boolean(input.arrivalUntil)) {
+    throw new Error("Set both arrival times, or leave both blank.");
+  }
+  const startDate = new Date(input.date + "T" + input.start);
+  const endDate = new Date(input.date + "T" + input.end);
+  if (endDate <= startDate) endDate.setDate(endDate.getDate() + 1);
+  const startsAt = startDate.toISOString();
+  const endsAt = endDate.toISOString();
+  const arrivalStartDate = input.arrivalFrom ? new Date(input.date + "T" + input.arrivalFrom) : null;
+  const arrivalEndDate = input.arrivalUntil ? new Date(input.date + "T" + input.arrivalUntil) : null;
+  if (arrivalStartDate && arrivalEndDate && arrivalEndDate < arrivalStartDate) arrivalEndDate.setDate(arrivalEndDate.getDate() + 1);
+  const arrivalFrom = arrivalStartDate?.toISOString() ?? null;
+  const arrivalUntil = arrivalEndDate?.toISOString() ?? null;
   const { data, error } = await supabase().from("parties").insert({
     host_id: user.id, title: input.title.trim(), description: input.description.trim(),
     party_type: input.partyType, starts_at: startsAt, ends_at: endsAt,
