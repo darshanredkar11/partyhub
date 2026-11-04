@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export function GuestRsvp({token,partyTitle}:{token:string;partyTitle:string}) {
@@ -11,7 +11,7 @@ export function GuestRsvp({token,partyTitle}:{token:string;partyTitle:string}) {
   const [busy,setBusy]=useState(false);
   const [done,setDone]=useState(false);
   const [error,setError]=useState('');
-  async function submit(event:React.FormEvent<HTMLFormElement>) {
+  async function submit(event:FormEvent<HTMLFormElement>) {
     event.preventDefault();setBusy(true);setError('');
     try {
       const supabase=getSupabaseBrowserClient();
