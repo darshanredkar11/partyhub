@@ -4,7 +4,7 @@ A guest-first, inclusive party planning PWA for private celebrations in India an
 
 ## Product scope — first release
 - Host accounts use email magic-link sign-in plus mandatory verified mobile number onboarding (E.164).
-- Guest RSVP is link-based; guests do not need an account or app installation.
+- Guest RSVP is link-based; guests do not need an account or app installation. After RSVP, they can optionally create an account, verify a mobile number and join the private party space to access games and the member gallery.
 - Hosts create parties and share reusable invitation links through WhatsApp.
 - Party rooms include Secret Missions, Party Bingo, Icebreaker Roulette, passport stamps, anonymous awards and a member-only photo gallery.
 - Party activity feed keeps the host and members in the loop.
