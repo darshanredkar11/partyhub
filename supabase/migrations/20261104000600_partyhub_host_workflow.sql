@@ -51,8 +51,8 @@ for insert to authenticated with check (
       and a.is_open
       and public.is_party_member(a.party_id)
       and exists (
-        select 1 from jsonb_array_elements_text(a.nominees) nominee
-        where nominee=party_award_votes.nominee_label
+        select 1 from jsonb_array_elements_text(a.nominees) as n(value)
+        where n.value=party_award_votes.nominee_label
       )
   )
 );
