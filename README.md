@@ -28,9 +28,14 @@ Private, guest-first party planning PWA for India and the UK.
 
 ## Local development
 1. Install Node.js 20.11+.
-2. Copy .env.example to .env.local and fill in the Supabase project URL and anon/publishable key.
+2. Copy .env.example to .env.local and fill in the Supabase project URL and anon/publishable key. These are public client credentials, not service-role secrets.
 3. Run npm install.
-4. Apply migrations with the Supabase CLI: supabase db reset.
+4. Apply migrations with the Supabase CLI: supabase db reset. The initial migration creates the private party-media bucket and RLS policies.
 5. Run npm run dev.
 
 Do not commit secrets or real guest data.
+## Sign-in and WhatsApp
+The first release uses Supabase email magic links. WhatsApp shares invitation links only; it does not deliver Supabase Auth magic links. Email is the fallback and recovery route.
+
+## Privacy and caching
+The service worker caches only static shell assets and the web manifest. It does not cache Supabase responses, auth routes, party details, RSVPs, or decrypted media. The gallery bucket is private and membership-gated.
