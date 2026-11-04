@@ -362,10 +362,10 @@ for delete to authenticated using (public.is_party_admin(id));
 create policy party_members_select_members on public.party_members
 for select to authenticated using (public.is_party_member(party_id));
 create policy party_members_insert_admin on public.party_members
-for insert to authenticated with check (public.is_party_admin(party_id));
+for insert to authenticated with check (public.is_party_admin(party_id) and role <> 'host');
 create policy party_members_update_admin on public.party_members
-for update to authenticated using (public.is_party_admin(party_id))
-with check (public.is_party_admin(party_id));
+for update to authenticated using (public.is_party_admin(party_id) and role <> 'host')
+with check (public.is_party_admin(party_id) and role <> 'host');
 create policy party_members_delete_admin on public.party_members
 for delete to authenticated using (
   public.is_party_admin(party_id) and role <> 'host'
