@@ -53,3 +53,14 @@ The E2E suite checks the auth entry point, invalid invitation handling and mobil
 Private gallery upload UI, co-host management, awards/voting, payments, playlists, games and party recap are later feature slices. The database foundation includes private media metadata and storage policies, but there is no gallery UI yet.
 
 Before public launch, add rate limiting/CAPTCHA to public invite RPCs, audit logging, retention/deletion controls and security review. The public guest RPCs are currently protected by high-entropy invitation tokens, expiration, revocation and bounded uses, but do not have per-IP throttling.
+
+## GitHub Actions database deployment
+
+The workflow `.github/workflows/supabase-migrations.yml` previews and applies checked-in migrations using the Supabase CLI. It is available from GitHub Actions as **PartyHub database migrations** and also runs on migration changes pushed to `main` or `initial-partyhub-draft`.
+
+Configure these two repository Actions secrets (Settings → Secrets and variables → Actions):
+
+- `SUPABASE_ACCESS_TOKEN`: a Supabase personal access token with access to the linked project.
+- `SUPABASE_DB_PASSWORD`: the database password for project `mqzjziaxbbozytumwsca`.
+
+The project ref is pinned in `supabase/config.toml` and the workflow to prevent accidental deployment to another project. Never commit either secret. The workflow runs a migration dry-run before applying migrations and prints the resulting migration history.
