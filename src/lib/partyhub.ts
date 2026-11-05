@@ -35,8 +35,11 @@ function parseLocalDateTime(date: string, time: string, field: string): Date {
   if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date) || !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(time)) {
     throw new Error(`Enter a valid ${field} date and time.`);
   }
+  const [year, month, day] = date.split("-").map(Number);
   const value = new Date(`${date}T${time}:00`);
-  if (Number.isNaN(value.getTime())) throw new Error(`Enter a valid ${field} date and time.`);
+  if (Number.isNaN(value.getTime()) || value.getFullYear() !== year || value.getMonth() !== month - 1 || value.getDate() !== day) {
+    throw new Error(`Enter a valid ${field} date and time.`);
+  }
   return value;
 }
 
@@ -60,6 +63,7 @@ export async function createParty(input: {
   }
 
   const startDate = parseLocalDateTime(input.date, input.start, "start");
+  if (startDate.getTime() < Date.now()) throw new Error("Choose a date and time in the future.");
   const endDate = parseLocalDateTime(input.date, input.end, "end");
   if (endDate <= startDate) endDate.setDate(endDate.getDate() + 1);
   if (endDate.getTime() - startDate.getTime() > 24 * 60 * 60 * 1000) {
@@ -118,7 +122,8 @@ export async function submitRsvp(input: {
 }) {
   const name = input.name.trim();
   if (!/^[0-9a-f]{64}$/i.test(input.token)) throw new Error("This invitation link is invalid.");
-  if (!name || name.length > 100) throw new Error("Enter your name (1–100 characters).");\n  if (/[\\u0000-\\u001f\\u007f]/.test(name)) throw new Error("Your name cannot contain control characters.");
+  if (!name || name.length > 100) throw new Error("Enter your name (1–100 characters).");
+  if (/[\u0000-\u001f\u007f]/.test(name)) throw new Error("Your name cannot contain control characters.");\n  if (/[\\u0000-\\u001f\\u007f]/.test(name)) throw new Error("Your name cannot contain control characters.");
   if (!RESPONSES.has(input.response)) throw new Error("Choose a valid RSVP response.");
   if (!Number.isInteger(input.guestCount) || input.guestCount < 1 || input.guestCount > 20) {
     throw new Error("Guest count must be between 1 and 20.");
