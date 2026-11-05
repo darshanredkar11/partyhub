@@ -173,3 +173,14 @@ export async function castMemberAwardVoteByEmail(pollId:string,optionId:string,e
  if(error)throw error;
  return data as Awaited<ReturnType<typeof getPublicAwardPoll>>;
 }
+
+export async function createPollMemberCodes(pollId:string) {
+ const {data,error}=await supabase().rpc("create_poll_member_codes",{p_poll_id:pollId});
+ if(error)throw error;
+ return (data??[]) as {id:string;member_id:string;member_name:string;code:string;used:boolean}[];
+}
+export async function castMemberAwardVoteByCode(pollId:string,optionId:string,code:string) {
+ const {data,error}=await supabase().rpc("cast_member_award_vote_by_code",{p_poll_id:pollId,p_option_id:optionId,p_code:code});
+ if(error)throw error;
+ return data as Awaited<ReturnType<typeof getPublicAwardPoll>>;
+}
