@@ -9,7 +9,7 @@ Private, guest-first party planning PWA for India and the UK.
 - Party data and RSVP responses persist in Supabase Postgres and are available across devices.
 - Create high-entropy invitation links; only token hashes are stored in the database.
 - Guests RSVP without creating an account, including attendance, guest count and dietary preference.
-- A guest can update their response by submitting the same name through the same invitation.
+- A guest can update their response from the same browser/device using a private, per-response edit token. Only its SHA-256 hash is stored in the database; knowing the guest name and invite URL is not sufficient to change another person’s RSVP.
 - Host dashboard shows RSVP totals and individual guest responses.
 - WhatsApp sharing and copy-link support.
 - Responsive PWA shell; private/authenticated content must not be cached by the service worker.
@@ -52,7 +52,7 @@ The E2E suite checks the auth entry point, invalid invitation handling and mobil
 
 Private gallery upload UI, co-host management, awards/voting, payments, playlists, games and party recap are later feature slices. The database foundation includes private media metadata and storage policies, but there is no gallery UI yet.
 
-Before public launch, add rate limiting/CAPTCHA to public invite RPCs, audit logging, retention/deletion controls and security review. The public guest RPCs are currently protected by high-entropy invitation tokens, expiration, revocation and bounded uses, but do not have per-IP throttling.
+Before public launch, add a trusted edge/server-side rate limit or CAPTCHA for public invite RPCs, audit logging, retention/deletion controls and an independent security review. The guest RPCs validate high-entropy invitation tokens, expiration, revocation, bounded uses and a per-response edit secret; direct browser-to-database calls do not provide reliable per-IP throttling.
 
 ## GitHub Actions database deployment
 
