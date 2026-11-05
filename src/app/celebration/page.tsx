@@ -1,5 +1,5 @@
 "use client";
-import "./workspace.css";
+import "../party/workspace.css";
 import {useEffect,useState} from "react";
 import {ArrowLeft,CalendarDays,Clock3,MapPin,Users,Camera,Plus,Vote,Copy,CheckCircle2,Utensils,Lock,ExternalLink,ImagePlus,XCircle} from "lucide-react";
 import {currentUser,getHostParty,uploadPartyPhoto,createAwardPoll,createPollGuestLinks,createPollMemberCodes,supabase} from "@/lib/partyhub";
