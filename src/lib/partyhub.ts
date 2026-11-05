@@ -123,7 +123,7 @@ export async function submitRsvp(input: {
   const name = input.name.trim();
   if (!/^[0-9a-f]{64}$/i.test(input.token)) throw new Error("This invitation link is invalid.");
   if (!name || name.length > 100) throw new Error("Enter your name (1–100 characters).");
-  if (/[\u0000-\u001f\u007f]/.test(name)) throw new Error("Your name cannot contain control characters.");\n  if (/[\\u0000-\\u001f\\u007f]/.test(name)) throw new Error("Your name cannot contain control characters.");
+  if (/[\u0000-\u001f\u007f]/.test(name)) throw new Error("Your name cannot contain control characters.");
   if (!RESPONSES.has(input.response)) throw new Error("Choose a valid RSVP response.");
   if (!Number.isInteger(input.guestCount) || input.guestCount < 1 || input.guestCount > 20) {
     throw new Error("Guest count must be between 1 and 20.");
