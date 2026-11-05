@@ -167,3 +167,9 @@ export async function castGuestLinkAwardVote(pollId:string,optionId:string,token
  if(error)throw error;
  return data as Awaited<ReturnType<typeof getPublicAwardPoll>>;
 }
+
+export async function castMemberAwardVoteByEmail(pollId:string,optionId:string,email:string) {
+ const {data,error}=await supabase().rpc("cast_member_award_vote_by_email",{p_poll_id:pollId,p_option_id:optionId,p_email:email});
+ if(error)throw error;
+ return data as Awaited<ReturnType<typeof getPublicAwardPoll>>;
+}
