@@ -13,9 +13,12 @@ export function supabaseConfigured() {
 }
 export function supabase() { return getSupabaseBrowserClient(); }
 export async function currentUser() {
-  const { data, error } = await supabase().auth.getUser();
-  if (error) throw error;
-  return data.user;
+  // A visitor without a login session is a normal public landing-page state.
+  // getUser() returns AuthSessionMissingError when there is no session; that
+  // must not be surfaced as an application error to anonymous visitors.
+  const { data, error } = await supabase().auth.getSession();
+  if (error) throw new Error("We couldn't check your sign-in. Please refresh and try again.");
+  return data.session?.user ?? null;
 }
 export async function listHostParties(): Promise<PartyRow[]> {
   const user = await currentUser();
