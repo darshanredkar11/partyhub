@@ -18,7 +18,7 @@ export function supabaseConfigured() {
 export function supabase() { return getSupabaseBrowserClient(); }
 export async function currentUser() {
   const { data, error } = await supabase().auth.getUser();
-  if (error) throw error;
+  if (error) throw new Error("We couldn’t verify your sign-in. Please sign in again.");
   return data.user;
 }
 export async function listHostParties(userId: string): Promise<PartyRow[]> {
@@ -26,7 +26,7 @@ export async function listHostParties(userId: string): Promise<PartyRow[]> {
   const { data, error } = await supabase().from("parties")
     .select("id,title,description,party_type,starts_at,ends_at,arrival_from,arrival_until,timezone,currency,status,guest_rsvps(id,display_name,response,guest_count,dietary_type)")
     .eq("host_id", userId).order("starts_at", { ascending: true });
-  if (error) throw error;
+  if (error) throw new Error("We couldn’t load your celebrations. Please try again.");
   return (data ?? []) as PartyRow[];
 }
 
@@ -85,7 +85,7 @@ export async function createParty(input: {
     arrival_until: arrivalEndDate?.toISOString() ?? null,
     timezone: input.timezone, currency: input.currency, status: "published"
   }).select("id").single();
-  if (error) throw error;
+  if (error) throw new Error("We couldn’t save your celebration. Check your details and try again.");
   if (!data?.id) throw new Error("The celebration was not saved. Please try again.");
   return data.id as string;
 }
@@ -95,7 +95,7 @@ export async function createInvite(partyId: string): Promise<string> {
     throw new Error("Invalid celebration.");
   }
   const { data, error } = await supabase().rpc("create_party_invite", { p_party_id: partyId });
-  if (error) throw error;
+  if (error) throw new Error("We couldn’t create the invitation. Please try again.");
   if (typeof data !== "string" || !/^[0-9a-f]{64}$/i.test(data)) {
     throw new Error("The invitation could not be created. Please try again.");
   }
@@ -105,7 +105,7 @@ export async function createInvite(partyId: string): Promise<string> {
 export async function getInvite(token: string) {
   if (!/^[0-9a-f]{64}$/i.test(token)) return null;
   const { data, error } = await supabase().rpc("get_invitation_preview", { p_token: token });
-  if (error) throw error;
+  if (error) throw new Error("The invitation service is temporarily unavailable.");
   const row = Array.isArray(data) ? data[0] : data;
   if (!row) return null;
   return row as {
@@ -138,7 +138,7 @@ export async function submitRsvp(input: {
     p_response: input.response, p_guest_count: input.guestCount,
     p_dietary_type: input.dietaryType, p_edit_token: input.editToken ?? null
   });
-  if (error) throw error;
+  if (error) throw new Error("We couldn’t save your RSVP. Please try again.");
   if (!data || typeof data.rsvp_id !== "string") throw new Error("Your response could not be confirmed. Please try again.");
   return data as { rsvp_id: string; edit_token: string | null };
 }
