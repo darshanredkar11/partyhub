@@ -20,13 +20,21 @@ export default function Home() {
 
   const refresh = useCallback(async () => {
     setError("");
+    let authenticated = false;
     try {
       const user = await currentUser();
       if (!user) { setUserEmail(""); setParties([]); return; }
+      authenticated = true;
       setUserEmail(user.email ?? "");
-      setParties(await listHostParties());
-    } catch (e) { setError(e instanceof Error ? e.message : "Could not load your celebrations."); }
-    finally { setLoaded(true); }
+      const rows = await listHostParties(user.id);
+      setParties(rows);
+    } catch {
+      // Never leave a previous account's private party data on screen after an
+      // auth or database failure.
+      setParties([]);
+      if (!authenticated) setUserEmail("");
+      setError("We couldn't load your celebrations. Check your connection and try again.");
+    } finally { setLoaded(true); }
   }, []);
 
   useEffect(() => {
