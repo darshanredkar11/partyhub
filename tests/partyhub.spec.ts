@@ -243,8 +243,11 @@ test("host dashboard reports database failures without hanging", async ({ page }
   await useHostSession(page);
   await mockHostApi(page, { listError: true });
   await page.goto("/");
-  await expect(page.locator(".notice.error-notice")).toBeVisible();
-  await expect(page.getByRole("button", { name: /Refresh/ })).toBeVisible();
+  await expect(page.getByText("host@example.test")).toBeVisible();
+  const refresh = page.getByRole("button", { name: /Refresh celebrations/ });
+  await expect(refresh).toBeVisible();
+  await refresh.click();
+  await expect(page.locator(".notice.error-notice")).toContainText(/couldn't load your celebrations/i);
 });
 
 test("host creation reports database constraint failures and re-enables submit", async ({ page }) => {
