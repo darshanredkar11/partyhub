@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type Route } from "@playwright/test";
 
 const SUPABASE = "https://mqzjziaxbbozytumwsca.supabase.co";
 const HOST_ID = "9f9d4b8a-8e2d-4a1f-9a2a-9f9d4b8a8e2d";
@@ -22,7 +22,7 @@ async function useHostSession(page: Page) {
   }, { host: HOST });
 }
 
-async function fulfillJson(route: Parameters<Parameters<Page["route"]>[1]>[0], body: unknown, status = 200) {
+async function fulfillJson(route: Route, body: unknown, status = 200) {
   await route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 }
 
