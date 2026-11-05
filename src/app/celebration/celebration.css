@@ -1,0 +1,61 @@
+
+/* Celebration confirmation page — responsive editorial layout */
+.celebration-shell{min-height:100vh;display:flex;flex-direction:column}
+.celebration-page{width:min(100%,820px);margin:0 auto;padding:42px 0 58px;flex:1}
+.celebration-success{display:inline-flex;align-items:center;gap:9px;color:#4c8b68;font-size:10px;font-weight:800;letter-spacing:1.7px}
+.celebration-success-icon{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:#e8f4eb}
+.celebration-heading{margin:17px 0 26px}
+.celebration-heading h1{font-size:clamp(36px,6vw,58px);line-height:1.04;letter-spacing:-2.8px;margin:12px 0}
+.celebration-heading p{font-size:15px;line-height:1.6;color:var(--muted);margin:0;max-width:560px}
+.celebration-feature{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);background:#fff;border:1px solid #eee8e2;border-radius:22px;overflow:hidden;box-shadow:0 14px 42px #3024430b}
+.celebration-art{min-height:330px;background:#f1edfa;overflow:hidden}
+.celebration-art>img{display:block;width:100%;height:100%;min-height:330px;object-fit:cover}
+.celebration-art-fallback{height:100%;min-height:330px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;background:radial-gradient(circle at 20% 20%,#fff9 0,transparent 30%),linear-gradient(145deg,#e8e0ff,#f9e9dc 58%,#e1efe7);color:#5f4bb3}
+.celebration-art-fallback span{font-family:Georgia,serif;font-size:70px;line-height:1}
+.celebration-art-fallback strong{font-family:Georgia,serif;font-size:clamp(24px,3vw,36px);font-weight:500;line-height:1.12;margin:16px 0;overflow-wrap:anywhere}
+.celebration-art-fallback small{font-size:9px;font-weight:800;letter-spacing:2px;color:#81749c}
+.celebration-art-fallback i{font-style:normal;font-size:23px;margin-top:22px;color:#b68b57}
+.celebration-details{padding:28px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.celebration-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px 18px}
+.celebration-detail{display:flex;align-items:flex-start;gap:11px;min-width:0}
+.detail-icon{width:36px;height:36px;flex:0 0 36px;border-radius:11px;background:#f4f0ff;color:#7158ce;display:grid;place-items:center}
+.celebration-detail>div{min-width:0;display:flex;flex-direction:column;gap:6px}
+.celebration-detail small,.celebration-host-note small{font-size:9px;letter-spacing:1.25px;font-weight:800;color:#9a93a4}
+.celebration-detail strong,.celebration-detail a{font-size:13px;line-height:1.45;font-weight:700;color:#302b3a;text-decoration:none;overflow-wrap:anywhere}
+.celebration-detail a{color:#6852c6}
+.celebration-host-note{border-top:1px solid #f0ecf0;margin-top:25px;padding-top:19px}
+.celebration-host-note p{white-space:pre-wrap;font-size:13px;line-height:1.65;color:#716b7b;margin:8px 0 0;overflow-wrap:anywhere}
+.celebration-invite-panel{display:flex;align-items:center;gap:16px;margin-top:24px;padding:22px 24px;background:#f3efff;border:1px solid #e9e2ff;border-radius:18px}
+.invite-panel-icon{width:46px;height:46px;flex:0 0 46px;display:grid;place-items:center;border-radius:14px;background:#fff;color:#7055d9}
+.invite-panel-copy{flex:1;min-width:0}
+.invite-panel-copy h2{font-size:18px;letter-spacing:-.4px;margin:0 0 5px}
+.invite-panel-copy p{font-size:12px;line-height:1.5;color:#777083;margin:0}
+.celebration-invite-panel .primary-btn{white-space:nowrap}
+.celebration-share-result{margin-top:14px;padding:18px 20px;border:1px solid #dceee1;background:#f5fbf6;border-radius:15px}
+.celebration-share-result>div:first-child{display:flex;align-items:center;gap:9px;color:#397b50;font-size:13px}
+.celebration-share-result>p{font-size:12px;line-height:1.5;color:#625b6b;overflow-wrap:anywhere}
+.celebration-share-actions{display:flex;gap:10px;flex-wrap:wrap}
+.celebration-share-actions .secondary-btn,.celebration-share-actions .primary-btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.celebration-back{display:inline-flex;align-items:center;gap:8px;margin-top:28px;color:#5f5869;text-decoration:none;font-size:13px;font-weight:700}
+.celebration-page>.notice{margin:14px 0}
+@media(max-width:760px){
+ .celebration-page{padding:28px 0 42px}
+ .celebration-heading{margin:14px 0 20px}
+ .celebration-heading h1{font-size:39px;letter-spacing:-1.8px}
+ .celebration-heading p{font-size:14px}
+ .celebration-feature{grid-template-columns:1fr;border-radius:18px}
+ .celebration-art,.celebration-art>img,.celebration-art-fallback{min-height:0;height:220px}
+ .celebration-art-fallback span{font-size:48px}
+ .celebration-art-fallback strong{font-size:27px;margin:8px 0}
+ .celebration-art-fallback i{margin-top:10px}
+ .celebration-details{padding:21px 18px}
+ .celebration-detail-grid{gap:20px 12px}
+ .celebration-detail{gap:9px}
+ .detail-icon{width:32px;height:32px;flex-basis:32px;border-radius:9px}
+ .celebration-detail strong,.celebration-detail a{font-size:12px}
+ .celebration-invite-panel{padding:18px;display:grid;grid-template-columns:42px 1fr;gap:12px}
+ .invite-panel-icon{width:42px;height:42px;flex-basis:42px}
+ .celebration-invite-panel .primary-btn{grid-column:1/-1;width:100%;min-height:48px}
+ .celebration-share-actions>*{flex:1;justify-content:center}
+}
+@media(max-width:370px){.celebration-detail-grid{grid-template-columns:1fr}.celebration-art,.celebration-art>img,.celebration-art-fallback{height:190px}}
