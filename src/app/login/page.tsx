@@ -23,7 +23,7 @@ export default function LoginPage(){
      options:{data:{display_name:name.trim()}}
     });
     if(error)throw error;
-    if(data.session) setMessage("Your account is ready. You're signed in!");
+    if(data.session) window.location.assign("/");
     else setMessage("Account created. Email confirmation is still enabled in Supabase; it must be turned off to use password-only signup.");
    }else{
     const {error}=await supabase.auth.signInWithPassword({email:email.trim(),password});
