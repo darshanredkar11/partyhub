@@ -96,7 +96,7 @@ export async function getInvite(token: string) {
   return row as {
     party_id: string; title: string; description: string; party_type: string;
     starts_at: string; ends_at: string; arrival_from: string | null;
-    arrival_until: string | null; timezone: string; venue_map_url: string | null;
+    arrival_until: string | null; timezone: string; venue_map_url: string | null; poster_url: string | null;
   };
 }
 export async function submitRsvp(input: {
