@@ -323,7 +323,7 @@ test("guest cannot submit a whitespace-only name", async ({ page }) => {
   await page.goto(`/invite/?token=${INVITE_TOKEN}`);
   await page.getByLabel("Your name").fill("   ");
   await page.getByRole("button", { name: /Send my RSVP/ }).click();
-  await expect(page.locator(".notice.error-notice")).toContainText(/couldn’t save your RSVP/i);
+  await expect(page.locator(".notice.error-notice")).toContainText(/enter your name before sending your RSVP/i);
   expect(calls.some(call => call.path.endsWith("/submit_guest_rsvp"))).toBeFalsy();
 });
 
