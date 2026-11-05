@@ -336,6 +336,51 @@ test("guest can choose the maximum supported party size and decline", async ({ p
   expect(submit.body.p_guest_count).toBe(20);
 });
 
+
+test("host rejects a malformed invitation token returned by the RPC", async ({ page }) => {
+  await useHostSession(page);
+  await mockHostApi(page, { invalidInviteToken: true });
+  await page.goto("/");
+  await page.getByRole("button", { name: /Plan a celebration/ }).click();
+  await page.getByLabel("What's the occasion?").fill("Malformed invite party");
+  await page.getByLabel("Date").fill("2027-06-10");
+  await page.getByRole("button", { name: /Create celebration/ }).click();
+  await page.getByRole("button", { name: /Create invite/ }).click();
+  await expect(page.getByRole("alert")).toContainText(/invitation could not be created/i);
+});
+
+test("host copies the invitation link when clipboard permission is granted", async ({ page, context }) => {
+  await useHostSession(page);
+  await mockHostApi(page);
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/");
+  await page.getByRole("button", { name: /Plan a celebration/ }).click();
+  await page.getByLabel("What's the occasion?").fill("Copy success party");
+  await page.getByLabel("Date").fill("2027-06-10");
+  await page.getByRole("button", { name: /Create celebration/ }).click();
+  await page.getByRole("button", { name: /Create invite/ }).click();
+  await page.getByRole("button", { name: /Copy link/ }).click();
+  await expect(page.getByRole("button", { name: /Copied!/ })).toBeVisible();
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copied).toContain(`/invite/?token=${INVITE_TOKEN}`);
+});
+
+test("invite pages and Supabase responses never enter the service-worker cache", async ({ page }) => {
+  await mockInviteApi(page);
+  await page.goto("/");
+  await page.waitForFunction(() => navigator.serviceWorker.controller !== null, null, { timeout: 15_000 });
+  await page.goto(`/invite/?token=${INVITE_TOKEN}`);
+  await expect(page.getByRole("heading", { name: "Summer rooftop party" })).toBeVisible();
+  const cachedUrls = await page.evaluate(async () => {
+    const keys = await caches.keys();
+    const requests = await Promise.all(keys.map(async key => (await caches.open(key)).keys()));
+    return requests.flat().map(request => request.url);
+  });
+  expect(cachedUrls.some(url => url.includes("/invite/"))).toBeFalsy();
+  expect(cachedUrls.some(url => url.includes("supabase.co"))).toBeFalsy();
+  expect(cachedUrls.some(url => url.includes(INVITE_TOKEN))).toBeFalsy();
+});
+
 test("copy-link failure is reported without losing the invitation URL", async ({ page, context }) => {
   await useHostSession(page);
   await mockHostApi(page);
