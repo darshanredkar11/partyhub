@@ -1,4 +1,5 @@
 "use client";
+import "./celebration.css";
 import { useEffect, useState } from "react";
 import { ArrowLeft, CalendarDays, Clock3, Copy, MapPin, PartyPopper, Sparkles, Users, Wallet, CheckCircle2, Share2 } from "lucide-react";
 import { createInvite, currentUser, supabase, type PartyRow } from "@/lib/partyhub";
