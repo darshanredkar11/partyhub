@@ -5,7 +5,7 @@ Private, guest-first party planning PWA for India and the UK.
 ## Draft 1 functionality
 
 - Host sign-in with Supabase email magic links (PKCE).
-- Create and manage celebrations with local timezone, date, event schedule, arrival window and INR/GBP currency.
+- Create and view celebrations with validated local date/time, arrival window, IANA timezone and INR/GBP currency.
 - Party data and RSVP responses persist in Supabase Postgres and are available across devices.
 - Create high-entropy invitation links; only token hashes are stored in the database.
 - Guests RSVP without creating an account, including attendance, guest count and dietary preference.
@@ -42,11 +42,13 @@ The browser only uses the Supabase publishable/anon key. Never put a service-rol
 
 Run:
 
+- `npm install`
+- `npm audit --audit-level=low`
 - `npm run typecheck`
 - `npm run test:e2e`
-- `npm run build`
+- `supabase start && supabase db reset && supabase test db`
 
-The E2E suite checks the auth entry point, invalid invitation handling and mobile layout. A real cross-device integration run requires a configured Supabase project and must test host creation, invite creation, guest RSVP, update-by-name, RLS isolation, expiry and revocation.
+Playwright builds and serves the production static export, then tests the host and guest journeys, validation, invitation and RSVP errors, update-token behavior, mobile layout, manifest assets, clipboard actions and offline service-worker behavior. Supabase pgTAP tests apply every migration to a fresh local database and verify RLS isolation, RPC grants, SECURITY DEFINER search paths, host/timezone integrity, invite limits, expiry/revocation and the per-response RSVP secret. The E2E Supabase HTTP boundary is mocked; live magic-link delivery and a deployed cross-device provider test are not claimed as passed.
 
 ## Not yet in Draft 1
 
