@@ -52,10 +52,8 @@ export default function Home() {
       if (form.mapUrl.trim() && !validMapLink(form.mapUrl.trim())) throw new Error("Paste a valid Google Maps or Apple Maps sharing link (https://…).");
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
       const description = form.description.trim();
-      await createParty({ ...form, description, timezone, venueMapUrl: form.mapUrl.trim() || null, costAmount: form.costAmount.trim() ? Number(form.costAmount) : null });
-      setShowCreate(false);
-      setForm({ title: "", description: "", mapUrl: "", date: "", start: "19:00", end: "23:00", arrivalFrom: "18:30", arrivalUntil: "20:00", currency: "INR", costAmount: "", costBasis: "total", costNegotiable: false, partyType: "house_party" });
-      await refresh();
+      const partyId = await createParty({ ...form, description, timezone, venueMapUrl: form.mapUrl.trim() || null, costAmount: form.costAmount.trim() ? Number(form.costAmount) : null });
+      window.location.assign("/celebration/?id=" + encodeURIComponent(partyId));
     } catch (e) { setError(e instanceof Error ? e.message : "Could not create the celebration."); }
     finally { setBusy(false); }
   }
