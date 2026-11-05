@@ -22,7 +22,7 @@ export async function currentUser() {
 }
 export async function listHostParties(page = 1, pageSize = 10): Promise<{ parties: PartyRow[]; total: number }> {
   const user = await currentUser();
-  if (!user) return [];
+  if (!user) return { parties: [], total: 0 };
   const { data, error, count } = await supabase().from("parties")
     .select("id,title,description,party_type,starts_at,ends_at,arrival_from,arrival_until,timezone,currency,status,venue_map_url,poster_url,cost_amount,cost_basis,cost_negotiable,guest_rsvps(id,display_name,response,guest_count,dietary_type)", { count: "exact" })
     .eq("host_id", user.id).order("starts_at", { ascending: true }).range((page - 1) * pageSize, page * pageSize - 1);
