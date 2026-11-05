@@ -17,10 +17,10 @@ export default defineConfig({
     { name: "chromium-mobile", use: { ...devices["Pixel 7"] } }
   ],
   webServer: {
-    command: "npm run dev -- --hostname 127.0.0.1",
+    command: "npm run build && node tests/static-server.mjs",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 180_000,
     env: {
       NEXT_PUBLIC_SUPABASE_URL: "https://mqzjziaxbbozytumwsca.supabase.co",
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "test-publishable-key-for-playwright"
