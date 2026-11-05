@@ -111,3 +111,42 @@ export async function submitRsvp(input: {
   if (error) throw error;
   return data as string;
 }
+
+
+export async function getHostParty(partyId:string) {
+ const user=await currentUser();if(!user)throw new Error("Sign in to view this celebration.");
+ const {data,error}=await supabase().from("parties")
+  .select("id,title,description,party_type,starts_at,ends_at,arrival_from,arrival_until,timezone,currency,status,venue_map_url,poster_url,cost_amount,cost_basis,cost_negotiable,guest_rsvps(id,display_name,response,guest_count,dietary_type,created_at),party_photos(id,public_url,caption,created_at),award_polls(id,title,description,status,created_at,award_poll_options(id,label))")
+  .eq("id",partyId).eq("host_id",user.id).single();
+ if(error)throw new Error("Could not load this celebration. It may not exist or you may not have access.");
+ return data;
+}
+export async function uploadPartyPhoto(partyId:string,file:File,caption:string) {
+ const user=await currentUser();if(!user)throw new Error("Sign in to add event photos.");
+ const ext:Record<string,string>={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
+ const extension=ext[file.type];if(!extension)throw new Error("Use JPG, PNG or WebP photos.");
+ if(file.size>10*1024*1024)throw new Error("Each photo must be 10 MB or smaller.");
+ const path=partyId+"/"+user.id+"/"+crypto.randomUUID()+"."+extension;
+ const client=supabase();
+ const {error:uploadError}=await client.storage.from("party-photos").upload(path,file,{contentType:file.type,upsert:false});
+ if(uploadError)throw uploadError;
+ const {data}=client.storage.from("party-photos").getPublicUrl(path);
+ const {error}=await client.from("party_photos").insert({party_id:partyId,storage_path:path,public_url:data.publicUrl,caption:caption.trim()||null});
+ if(error){await client.storage.from("party-photos").remove([path]);throw error;}
+ return data.publicUrl;
+}
+export async function createAwardPoll(partyId:string,title:string,description:string,options:string[]) {
+ const {data,error}=await supabase().rpc("create_award_poll",{p_party_id:partyId,p_title:title,p_description:description,p_options:options});
+ if(error)throw error;if(typeof data!=="string")throw new Error("Could not create the award poll.");
+ return data;
+}
+export async function getPublicAwardPoll(pollId:string) {
+ const {data,error}=await supabase().rpc("get_public_award_poll",{p_poll_id:pollId});
+ if(error)throw error;if(!data)throw new Error("This poll is not available.");
+ return data as {id:string;title:string;description:string|null;status:"open"|"closed";party_title:string;options:{id:string;label:string;votes:number}[]};
+}
+export async function castAnonymousAwardVote(pollId:string,optionId:string,voterKey:string) {
+ const {data,error}=await supabase().rpc("cast_anonymous_award_vote",{p_poll_id:pollId,p_option_id:optionId,p_voter_key:voterKey});
+ if(error)throw error;
+ return data as Awaited<ReturnType<typeof getPublicAwardPoll>>;
+}
