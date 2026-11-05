@@ -31,3 +31,11 @@
 .vote-loading{padding:45px 0;text-align:center;color:#81798a;font-size:13px}
 .vote-home{display:inline-flex;align-items:center;gap:6px;margin-top:18px;color:#7a7085;text-decoration:none;font-size:12px}
 @media(max-width:480px){.public-vote-card{padding:22px 18px;border-radius:20px}.vote-event-label{margin-top:27px}}
+
+.vote-identity{margin:18px 0;padding:18px;border:1px solid #ece6f1;border-radius:15px;background:#fcfbfe}
+.vote-identity h2{margin:0 0 7px;font-size:17px;color:#302b3a}
+.vote-identity p{font-size:12px;line-height:1.55;color:#81798a;margin:0 0 14px}
+.vote-methods{display:flex;gap:8px;margin-bottom:12px}
+.vote-methods button{display:flex;align-items:center;gap:6px;padding:9px 13px;border:1px solid #e5deeb;border-radius:10px;background:#fff;color:#554c62;font-size:12px}
+.vote-methods button.chosen{border-color:#8068dc;background:#f2eeff;color:#6248c2}
+.vote-contact-input{width:100%;padding:13px;border:1px solid #e5deeb;border-radius:10px;background:#fff;color:#302b3a;font:inherit;font-size:14px;margin:5px 0}
