@@ -26,3 +26,10 @@
 .invite-poster-fallback{background:linear-gradient(135deg,#eee9ff 0%,#f8e9df 55%,#e5f0e8 100%)}
 .celebration-poster{height:auto;max-height:360px;margin:18px 0;object-fit:cover}
 @media(max-width:760px){.party-poster{height:100%;min-height:180px}.pagination{gap:8px;flex-wrap:wrap}.pagination .secondary-btn{min-width:auto;padding:9px 11px}.invite-poster{height:160px}}
+
+
+.party-card{position:relative;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
+.party-card:hover{transform:translateY(-3px);box-shadow:0 16px 38px #30244312}
+.party-card-link{position:absolute;inset:0;z-index:1;border-radius:inherit}
+.party-card button,.party-card details,.party-card .invite-share{position:relative;z-index:2}
+.party-card button{cursor:pointer}
