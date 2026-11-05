@@ -20,7 +20,7 @@ export default function LoginPage(){
     const {data,error}=await supabase.auth.signUp({
      email:email.trim(),
      password,
-     options:{data:{full_name:name.trim()}}
+     options:{data:{display_name:name.trim()}}
     });
     if(error)throw error;
     if(data.session) setMessage("Your account is ready. You're signed in!");
