@@ -1,4 +1,5 @@
 "use client";
+import "../vote.css";
 import {useEffect,useState} from "react";
 import {useParams} from "next/navigation";
 import {PartyPopper,Vote,Lock,CheckCircle2,ArrowLeft,BarChart3,Clock3} from "lucide-react";
