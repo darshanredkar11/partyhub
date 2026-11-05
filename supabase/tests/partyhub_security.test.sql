@@ -157,8 +157,8 @@ select is(
   'host A cannot read host B party'
 );
 select lives_ok(
-  $update public.parties set title = 'Unauthorized update'
-    where id = '44444444-4444-4444-8444-444444444444'$,
+  $upd$update public.parties set title = 'Unauthorized update'
+    where id = '44444444-4444-4444-8444-444444444444'$upd$,
   'host A cannot change another host party'
 );
 select is(
