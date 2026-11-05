@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "PartyHub — Private celebrations",
   description: "Plan your party, invite your people and keep the memories together.",
   applicationName: "PartyHub",
-  manifest: "/manifest.webmanifest",
+  manifest: "/manifest.webmanifest",\n  referrer: "no-referrer",\n  icons: { icon: "/icons/icon.svg" },
 };
 
 export const viewport: Viewport = {
