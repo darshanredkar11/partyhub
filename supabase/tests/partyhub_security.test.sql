@@ -156,13 +156,10 @@ select is(
   0,
   'host A cannot read host B party'
 );
-select is(
-  (with changed as (
-    update public.parties set title = 'Unauthorized update'
-    where id = '44444444-4444-4444-8444-444444444444' returning 1
-  ) select count(*)::integer from changed),
-  0,
-  'host A cannot update host B party'
+select lives_ok(
+  $update public.parties set title = 'Unauthorized update'
+    where id = '44444444-4444-4444-8444-444444444444'$,
+  'host A cannot change another host party'
 );
 select is(
   (select count(*)::integer from public.guest_rsvps
@@ -187,9 +184,9 @@ select throws_ok(
 
 do $claims$ begin perform set_config('request.jwt.claim.sub', '55555555-5555-4555-8555-555555555555', true); end $claims$;
 select is(
-  (select count(*)::integer from public.parties where id = '44444444-4444-4444-8444-444444444444'),
-  1,
-  'host B can read their own party'
+  (select title from public.parties where id = '44444444-4444-4444-8444-444444444444'),
+  'Other host party',
+  'host B party remains intact after host A update attempt'
 );
 select is(
   (select count(*)::integer from public.guest_rsvps
