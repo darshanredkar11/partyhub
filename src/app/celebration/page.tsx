@@ -9,13 +9,16 @@ export default function CelebrationPage() {
   const [error,setError]=useState("");
   const [inviteUrl,setInviteUrl]=useState("");
   const [busy,setBusy]=useState(false);
-  const [copied,setCopied]=useState(false);\n  const [posterFailed,setPosterFailed]=useState(false);
+  const [copied,setCopied]=useState(false);
+  const [posterFailed,setPosterFailed]=useState(false);
 
   useEffect(()=>{
     let active=true;
     (async()=>{
       try {
-        const params=new URLSearchParams(window.location.search);\n        setPosterFailed(params.get("poster")==="failed");\n        const id=params.get("id");
+        const params=new URLSearchParams(window.location.search);
+        setPosterFailed(params.get("poster")==="failed");
+        const id=params.get("id");
         if(!id) throw new Error("Celebration link is missing its ID.");
         const user=await currentUser();
         if(!user) { window.location.assign("/login/"); return; }
