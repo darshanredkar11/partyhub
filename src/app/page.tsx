@@ -13,7 +13,10 @@ const validMapLink = (value: string) => {
 };
 
 export default function Home() {
-  const [parties, setParties] = useState<PartyRow[]>([]);\n  const [totalPartyCount, setTotalPartyCount] = useState(0);\n  const [currentPage, setCurrentPage] = useState(1);\n  const [posterFile, setPosterFile] = useState<File | null>(null);
+  const [parties, setParties] = useState<PartyRow[]>([]);
+  const [totalPartyCount, setTotalPartyCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [posterFile, setPosterFile] = useState<File | null>(null);
   const [userEmail, setUserEmail] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
@@ -29,7 +32,9 @@ export default function Home() {
       const user = await currentUser();
       if (!user) { setUserEmail(""); setParties([]); setTotalPartyCount(0); return; }
       setUserEmail(user.email ?? "");
-      const result = await listHostParties(currentPage, 10);\n      setParties(result.parties);\n      setTotalPartyCount(result.total);
+      const result = await listHostParties(currentPage, 10);
+      setParties(result.parties);
+      setTotalPartyCount(result.total);
     } catch (e) { setError(e instanceof Error ? e.message : "Could not load your celebrations."); }
     finally { setLoaded(true); }
   }, []);
@@ -42,7 +47,8 @@ export default function Home() {
     return () => listener.subscription.unsubscribe();
   }, [refresh]);
 
-  const total = parties.reduce((n, p) => n + (p.guest_rsvps?.reduce((m, g) => m + g.guest_count, 0) ?? 0), 0);\n  const pageCount = Math.max(1, Math.ceil(totalPartyCount / 10));
+  const total = parties.reduce((n, p) => n + (p.guest_rsvps?.reduce((m, g) => m + g.guest_count, 0) ?? 0), 0);
+  const pageCount = Math.max(1, Math.ceil(totalPartyCount / 10));
   const yes = parties.reduce((n, p) => n + (p.guest_rsvps?.filter(g => g.response === "yes").reduce((m, g) => m + g.guest_count, 0) ?? 0), 0);
   const upcoming = useMemo(() => [...parties].sort((a,b) => a.starts_at.localeCompare(b.starts_at)), [parties]);
 
@@ -53,7 +59,9 @@ export default function Home() {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
       const description = form.description.trim();
       const partyId = await createParty({ ...form, description, timezone, venueMapUrl: form.mapUrl.trim() || null, costAmount: form.costAmount.trim() ? Number(form.costAmount) : null });
-      window.location.assign("/celebration/?id=" + encodeURIComponent(partyId));
+      let posterFailed = false;
+      if (posterFile) { try { await uploadPartyPoster(partyId, posterFile); } catch { posterFailed = true; } }
+      window.location.assign("/celebration/?id=" + encodeURIComponent(partyId) + (posterFailed ? "&poster=failed" : ""));
     } catch (e) { setError(e instanceof Error ? e.message : "Could not create the celebration."); }
     finally { setBusy(false); }
   }
