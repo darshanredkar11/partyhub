@@ -86,16 +86,16 @@ insert into public.parties (
 );
 
 insert into public.invitations (
-  id, party_id, token_hash, expires_at, max_uses, uses_count, created_by
+  id, party_id, token_hash, expires_at, max_uses, uses_count, created_by, revoked_at
 ) values
   ('66666666-6666-4666-8666-666666666666',
    '22222222-2222-4222-8222-222222222222',
    extensions.digest(convert_to(repeat('c',64), 'UTF8'), 'sha256'),
-   now() + interval '1 day', 10, 0, '11111111-1111-4111-8111-111111111111'),
+   now() + interval '1 day', 10, 0, '11111111-1111-4111-8111-111111111111', null),
   ('77777777-7777-4777-8777-777777777777',
    '22222222-2222-4222-8222-222222222222',
    extensions.digest(convert_to(repeat('d',64), 'UTF8'), 'sha256'),
-   now() - interval '1 day', 10, 0, '11111111-1111-4111-8111-111111111111'),
+   now() - interval '1 day', 10, 0, '11111111-1111-4111-8111-111111111111', null),
   ('88888888-8888-4888-8888-888888888888',
    '22222222-2222-4222-8222-222222222222',
    extensions.digest(convert_to(repeat('e',64), 'UTF8'), 'sha256'),
