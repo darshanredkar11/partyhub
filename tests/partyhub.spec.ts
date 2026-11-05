@@ -349,7 +349,8 @@ test("copy-link failure is reported without losing the invitation URL", async ({
   await expect(page.getByRole("alert")).toContainText(/clipboard access was blocked/i);
   await expect(page.getByRole("link", { name: /Share on WhatsApp/ })).toBeVisible();
 });
-\ntest("mobile home has no horizontal overflow and all key actions remain reachable", async ({ page }) => {
+
+test("mobile home has no horizontal overflow and all key actions remain reachable", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await expect(page.getByRole("link", { name: /Host sign in/ }).first()).toBeVisible();
