@@ -99,7 +99,7 @@ test("public home renders the unauthenticated host journey", async ({ page }) =>
 });
 
 test("login rejects an empty address and sends a magic link on success", async ({ page }) => {
-  await page.route(`${SUPABASE}/auth/v1/otp`, route => fulfillJson(route, {}));
+  await page.route(`${SUPABASE}/auth/v1/otp**`, route => fulfillJson(route, {}));
   await page.goto("/login/");
   const email = page.getByLabel("Email address");
   await email.fill("not-an-email");
@@ -272,7 +272,16 @@ test("mobile home has no horizontal overflow and all key actions remain reachabl
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
-test("PWA manifest points to a real app icon", async ({ page, request }) => {
+
+test("production service worker serves a privacy-safe offline fallback", async ({ page, context }) => {
+  await page.goto("/");
+  await page.waitForFunction(() => navigator.serviceWorker.controller !== null, null, { timeout: 15_000 });
+  await context.setOffline(true);
+  await page.goto("/invite/");
+  await expect(page.getByRole("heading", { name: "You're offline" })).toBeVisible();
+  await context.setOffline(false);
+});
+\ntest("PWA manifest points to a real app icon", async ({ page, request }) => {
   const manifestResponse = await request.get("/manifest.webmanifest");
   expect(manifestResponse.ok()).toBeTruthy();
   const manifest = await manifestResponse.json();
