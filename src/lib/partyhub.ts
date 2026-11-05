@@ -150,3 +150,20 @@ export async function castAnonymousAwardVote(pollId:string,optionId:string,voter
  if(error)throw error;
  return data as Awaited<ReturnType<typeof getPublicAwardPoll>>;
 }
+
+
+export async function createPollGuestLinks(pollId:string,count:number) {
+ const {data,error}=await supabase().rpc("create_poll_guest_links",{p_poll_id:pollId,p_count:count,p_expires_at:null});
+ if(error)throw error;
+ return (data??[]) as {id:string;token:string}[];
+}
+export async function castMemberAwardVote(pollId:string,optionId:string) {
+ const {data,error}=await supabase().rpc("cast_member_award_vote",{p_poll_id:pollId,p_option_id:optionId});
+ if(error)throw error;
+ return data as Awaited<ReturnType<typeof getPublicAwardPoll>>;
+}
+export async function castGuestLinkAwardVote(pollId:string,optionId:string,token:string) {
+ const {data,error}=await supabase().rpc("cast_guest_link_award_vote",{p_poll_id:pollId,p_option_id:optionId,p_token:token});
+ if(error)throw error;
+ return data as Awaited<ReturnType<typeof getPublicAwardPoll>>;
+}
