@@ -9,13 +9,13 @@ export default function CelebrationPage() {
   const [error,setError]=useState("");
   const [inviteUrl,setInviteUrl]=useState("");
   const [busy,setBusy]=useState(false);
-  const [copied,setCopied]=useState(false);
+  const [copied,setCopied]=useState(false);\n  const [posterFailed,setPosterFailed]=useState(false);
 
   useEffect(()=>{
     let active=true;
     (async()=>{
       try {
-        const id=new URLSearchParams(window.location.search).get("id");
+        const params=new URLSearchParams(window.location.search);\n        setPosterFailed(params.get("poster")==="failed");\n        const id=params.get("id");
         if(!id) throw new Error("Celebration link is missing its ID.");
         const user=await currentUser();
         if(!user) { window.location.assign("/login/"); return; }
@@ -53,7 +53,7 @@ export default function CelebrationPage() {
     <section className="events-section" style={{maxWidth:720,margin:"48px auto"}}>
       {loading?<div className="empty-state">Loading your celebration…</div>:error?<div className="notice error-notice" role="alert">{error}</div>:party&&<>
         <div className="eyebrow"><Sparkles size={14}/> YOUR CELEBRATION IS READY</div>
-        <h1 style={{fontSize:"clamp(32px,6vw,52px)",margin:"12px 0 8px"}}>{party.title}</h1>
+        <h1 style={{fontSize:"clamp(32px,6vw,52px)",margin:"12px 0 8px"}}>{party.title}</h1>{posterFailed&&<div className="notice error-notice">Your party was created, but the poster upload failed. You can still invite guests; try uploading the poster again later.</div>}{party.poster_url&&<img className="celebration-poster" src={party.poster_url} alt={party.title+" poster"}/>}
         <p style={{color:"var(--muted,#777)"}}>Your celebration has been saved. Next, invite your people.</p>
         <article className="party-card" style={{marginTop:24}}>
           <div className="party-card-body">
