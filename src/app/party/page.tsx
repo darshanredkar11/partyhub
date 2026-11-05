@@ -1,9 +1,8 @@
 "use client";
 import "./workspace.css";
-import "../workspace.css";
 import {useEffect,useState} from "react";
 import {ArrowLeft,CalendarDays,Clock3,MapPin,Users,Camera,Plus,Vote,Copy,CheckCircle2,Utensils,Lock,ExternalLink,ImagePlus,XCircle} from "lucide-react";
-import {currentUser,getHostParty,uploadPartyPhoto,createAwardPoll,supabase,type PartyRow} from "@/lib/partyhub";
+import {currentUser,getHostParty,uploadPartyPhoto,createAwardPoll,supabase} from "@/lib/partyhub";
 
 type EventData=any;
 export default function PartyWorkspace(){
