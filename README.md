@@ -4,7 +4,7 @@ Private, guest-first party planning PWA for India and the UK.
 
 ## Draft 1 functionality
 
-- Host sign-in with Supabase email magic links (PKCE).
+- Host account creation and sign-in with email + password (no magic links).
 - Create and manage celebrations with local timezone, date, event schedule, arrival window and INR/GBP currency.
 - Party data and RSVP responses persist in Supabase Postgres and are available across devices.
 - Create high-entropy invitation links; only token hashes are stored in the database.
@@ -34,7 +34,7 @@ Apply migrations in timestamp order:
 - `20261104000100_partyhub_foundation.sql`
 - `20261104000200_partyhub_invites_rsvp.sql`
 
-Configure Supabase Authentication URL Configuration with the deployed site URL and redirect URL `https://YOUR_DOMAIN/` (and local `http://localhost:3000/` for development). Enable email magic-link sign-in.
+Configure Supabase Authentication URL Configuration with the deployed site URL and redirect URL `https://YOUR_DOMAIN/` (and local `http://localhost:3000/` for development). Enable Email provider password sign-in and disable Confirm email so account creation does not send verification emails. Passwords must be at least 12 characters. Keep email/password authentication enabled; magic links are not used.
 
 The browser only uses the Supabase publishable/anon key. Never put a service-role key in `.env.local`, client code, or a public deployment variable.
 
