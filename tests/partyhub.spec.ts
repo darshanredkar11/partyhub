@@ -205,6 +205,7 @@ test("authenticated host can create a party, create an invite and share it", asy
   await page.getByRole("button", { name: /Create celebration/ }).click();
   await expect(page.getByRole("heading", { name: "QA birthday" })).toBeVisible();
   const insert = calls.find(call => call.method === "POST" && call.path === "/rest/v1/parties");
+  if (!insert) throw new Error("Expected the party insert request to be sent.");
   expect(insert.body.title).toBe("QA birthday");
   expect(insert.body.status).toBe("published");
   await page.getByRole("button", { name: /Create invite/ }).click();
