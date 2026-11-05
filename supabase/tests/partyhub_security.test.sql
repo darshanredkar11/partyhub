@@ -144,7 +144,7 @@ select ok(
 
 
 set local role authenticated;
-do $ begin perform set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true); end $;
+do $claims$ begin perform set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true); end $claims$;
 
 select is(
   (select count(*)::integer from public.parties where id = '22222222-2222-4222-8222-222222222222'),
@@ -171,21 +171,21 @@ select is(
   'host A can read guest RSVPs for their party'
 );
 select throws_ok(
-  $update public.parties set host_id = '55555555-5555-4555-8555-555555555555'
-    where id = '22222222-2222-4222-8222-222222222222'$,
+  $hostchange$update public.parties set host_id = '55555555-5555-4555-8555-555555555555'
+    where id = '22222222-2222-4222-8222-222222222222'$hostchange$,
   'P0001',
   'Party host cannot be changed after creation',
   'party host identity cannot be reassigned'
 );
 select throws_ok(
-  $update public.parties set timezone = 'Not/AReal_TimeZone'
-    where id = '22222222-2222-4222-8222-222222222222'$,
+  $timezone$update public.parties set timezone = 'Not/AReal_TimeZone'
+    where id = '22222222-2222-4222-8222-222222222222'$timezone$,
   'P0001',
   'Invalid party time zone',
   'invalid time zones are rejected in the database'
 );
 
-do $ begin perform set_config('request.jwt.claim.sub', '55555555-5555-4555-8555-555555555555', true); end $;
+do $claims$ begin perform set_config('request.jwt.claim.sub', '55555555-5555-4555-8555-555555555555', true); end $claims$;
 select is(
   (select count(*)::integer from public.parties where id = '44444444-4444-4444-8444-444444444444'),
   1,
