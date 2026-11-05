@@ -31,7 +31,7 @@ export async function listHostParties(userId: string): Promise<PartyRow[]> {
 }
 
 function parseLocalDateTime(date: string, time: string, field: string): Date {
-  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date) || !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(time)) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) {
     throw new Error(`Enter a valid ${field} date and time.`);
   }
   const [year, month, day] = date.split("-").map(Number);
