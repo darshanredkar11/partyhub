@@ -118,7 +118,7 @@ test("login displays a recoverable provider failure", async ({ page }) => {
   await page.goto("/login/");
   await page.getByLabel("Email address").fill("host@example.test");
   await page.getByRole("button", { name: /Send magic link/ }).click();
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.locator(".notice.error-notice")).toBeVisible();
 });
 
 test("missing and malformed invite tokens fail closed without making a database call", async ({ page }) => {
@@ -187,7 +187,7 @@ test("guest RSVP failure shows a friendly error and allows retry", async ({ page
   await page.goto(`/invite/?token=${INVITE_TOKEN}`);
   await page.getByLabel("Your name").fill("Asha Guest");
   await page.getByRole("button", { name: /Send my RSVP/ }).click();
-  await expect(page.getByRole("alert")).toContainText(/couldn't save your RSVP/i);
+  await expect(page.locator(".notice.error-notice")).toContainText(/couldn't save your RSVP/i);
   await expect(page.getByRole("button", { name: /Send my RSVP/ })).toBeEnabled();
 });
 
@@ -222,7 +222,7 @@ test("host form rejects whitespace-only titles", async ({ page }) => {
   await page.getByLabel("What's the occasion?").fill("   ");
   await page.getByLabel("Date").fill("2027-06-10");
   await page.getByRole("button", { name: /Create celebration/ }).click();
-  await expect(page.getByRole("alert")).toContainText(/title/i);
+  await expect(page.locator(".notice.error-notice")).toContainText(/title/i);
   expect(calls.some(call => call.method === "POST" && call.path === "/rest/v1/parties")).toBeFalsy();
 });
 
@@ -235,7 +235,7 @@ test("host form rejects incomplete arrival windows", async ({ page }) => {
   await page.getByLabel("Date").fill("2027-06-10");
   await page.getByLabel("Arrival until").fill("");
   await page.getByRole("button", { name: /Create celebration/ }).click();
-  await expect(page.getByRole("alert")).toContainText(/both arrival times/i);
+  await expect(page.locator(".notice.error-notice")).toContainText(/both arrival times/i);
   expect(calls.some(call => call.method === "POST" && call.path === "/rest/v1/parties")).toBeFalsy();
 });
 
@@ -243,7 +243,7 @@ test("host dashboard reports database failures without hanging", async ({ page }
   await useHostSession(page);
   await mockHostApi(page, { listError: true });
   await page.goto("/");
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.locator(".notice.error-notice")).toBeVisible();
   await expect(page.getByRole("button", { name: /Refresh/ })).toBeVisible();
 });
 
@@ -254,8 +254,10 @@ test("host creation reports database constraint failures and re-enables submit",
   await page.getByRole("button", { name: /Plan a celebration/ }).click();
   await page.getByLabel("What's the occasion?").fill("Database failure party");
   await page.getByLabel("Date").fill("2027-06-10");
+  await page.getByLabel("Starts").fill("19:00");
+  await page.getByLabel("Ends").fill("23:00");
   await page.getByRole("button", { name: /Create celebration/ }).click();
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.locator(".notice.error-notice")).toBeVisible();
   await expect(page.getByRole("button", { name: /Create celebration/ })).toBeEnabled();
 });
 
@@ -265,7 +267,7 @@ test("failed sign-out keeps the host session visible and reports the failure", a
   await page.goto("/");
   await expect(page.getByText("host@example.test")).toBeVisible();
   await page.getByRole("button", { name: /Sign out/ }).click();
-  await expect(page.getByRole("alert")).toContainText(/could not sign you out/i);
+  await expect(page.locator(".notice.error-notice")).toContainText(/could not sign you out/i);
   await expect(page.getByText("host@example.test")).toBeVisible();
 });
 
@@ -276,7 +278,7 @@ test("host can dismiss the create dialog with its close control and Escape", asy
   await page.goto("/");
   await page.getByRole("button", { name: /Plan a celebration/ }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
-  await page.getByRole("button", { name: "Close dialog" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByRole("button", { name: /Plan a celebration/ }).click();
   await page.keyboard.press("Escape");
@@ -287,9 +289,9 @@ test("host refresh control reloads without breaking the dashboard", async ({ pag
   await useHostSession(page);
   await mockHostApi(page);
   await page.goto("/");
-  await page.getByRole("button", { name: "Refresh celebrations" }).click();
+  await page.getByRole("button", { name: "Refresh" }).click();
   await expect(page.getByText("host@example.test")).toBeVisible();
-  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(page.locator(".notice.error-notice")).toHaveCount(0);
 });
 
 test("host invitation creation errors and malformed tokens are handled", async ({ page }) => {
@@ -299,10 +301,12 @@ test("host invitation creation errors and malformed tokens are handled", async (
   await page.getByRole("button", { name: /Plan a celebration/ }).click();
   await page.getByLabel("What's the occasion?").fill("Invite failure party");
   await page.getByLabel("Date").fill("2027-06-10");
+  await page.getByLabel("Starts").fill("19:00");
+  await page.getByLabel("Ends").fill("23:00");
   await page.getByRole("button", { name: /Create celebration/ }).click();
   await expect(page.getByRole("heading", { name: "Invite failure party" })).toBeVisible();
   await page.getByRole("button", { name: /Create invite/ }).click();
-  await expect(page.getByRole("alert")).toContainText(/couldn’t create the invitation/i);
+  await expect(page.locator(".notice.error-notice")).toContainText(/couldn’t create the invitation/i);
 });
 
 test("host can sign out successfully", async ({ page }) => {
@@ -319,7 +323,7 @@ test("guest cannot submit a whitespace-only name", async ({ page }) => {
   await page.goto(`/invite/?token=${INVITE_TOKEN}`);
   await page.getByLabel("Your name").fill("   ");
   await page.getByRole("button", { name: /Send my RSVP/ }).click();
-  await expect(page.getByRole("alert")).toContainText(/couldn’t save your RSVP/i);
+  await expect(page.locator(".notice.error-notice")).toContainText(/couldn’t save your RSVP/i);
   expect(calls.some(call => call.path.endsWith("/submit_guest_rsvp"))).toBeFalsy();
 });
 
@@ -344,9 +348,11 @@ test("host rejects a malformed invitation token returned by the RPC", async ({ p
   await page.getByRole("button", { name: /Plan a celebration/ }).click();
   await page.getByLabel("What's the occasion?").fill("Malformed invite party");
   await page.getByLabel("Date").fill("2027-06-10");
+  await page.getByLabel("Starts").fill("19:00");
+  await page.getByLabel("Ends").fill("23:00");
   await page.getByRole("button", { name: /Create celebration/ }).click();
   await page.getByRole("button", { name: /Create invite/ }).click();
-  await expect(page.getByRole("alert")).toContainText(/invitation could not be created/i);
+  await expect(page.locator(".notice.error-notice")).toContainText(/invitation could not be created/i);
 });
 
 test("host copies the invitation link when clipboard permission is granted", async ({ page, context }) => {
@@ -357,6 +363,8 @@ test("host copies the invitation link when clipboard permission is granted", asy
   await page.getByRole("button", { name: /Plan a celebration/ }).click();
   await page.getByLabel("What's the occasion?").fill("Copy success party");
   await page.getByLabel("Date").fill("2027-06-10");
+  await page.getByLabel("Starts").fill("19:00");
+  await page.getByLabel("Ends").fill("23:00");
   await page.getByRole("button", { name: /Create celebration/ }).click();
   await page.getByRole("button", { name: /Create invite/ }).click();
   await page.getByRole("button", { name: /Copy link/ }).click();
@@ -389,10 +397,12 @@ test("copy-link failure is reported without losing the invitation URL", async ({
   await page.getByRole("button", { name: /Plan a celebration/ }).click();
   await page.getByLabel("What's the occasion?").fill("Clipboard party");
   await page.getByLabel("Date").fill("2027-06-10");
+  await page.getByLabel("Starts").fill("19:00");
+  await page.getByLabel("Ends").fill("23:00");
   await page.getByRole("button", { name: /Create celebration/ }).click();
   await page.getByRole("button", { name: /Create invite/ }).click();
   await page.getByRole("button", { name: /Copy link/ }).click();
-  await expect(page.getByRole("alert")).toContainText(/clipboard access was blocked/i);
+  await expect(page.locator(".notice.error-notice")).toContainText(/clipboard access was blocked/i);
   await expect(page.getByRole("link", { name: /Share on WhatsApp/ })).toBeVisible();
 });
 
