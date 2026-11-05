@@ -371,7 +371,7 @@ test("invite pages and Supabase responses never enter the service-worker cache",
   await page.waitForFunction(() => navigator.serviceWorker.controller !== null, null, { timeout: 15_000 });
   await page.goto(`/invite/?token=${INVITE_TOKEN}`);
   await expect(page.getByRole("heading", { name: "Summer rooftop party" })).toBeVisible();
-  const cachedUrls = await page.evaluate(async () => {
+  const cachedUrls = await page.evaluate(async token => {
     const keys = await caches.keys();
     const requests = await Promise.all(keys.map(async key => (await caches.open(key)).keys()));
     return requests.flat().map(request => request.url);
