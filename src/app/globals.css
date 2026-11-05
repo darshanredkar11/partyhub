@@ -8,3 +8,21 @@
 .invite-share{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;padding:10px;background:#f7f4ff;border-radius:9px}.invite-share a{font-size:11px;font-weight:700;color:#624bc2;text-decoration:none}.rsvp-list{margin-top:13px;border-top:1px solid #f0edf0;padding-top:10px;font-size:11px;color:#766e80}.rsvp-list summary{cursor:pointer;font-weight:700;color:#6550c3}.guest-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #f3f0f3;font-size:10px}.guest-row span:last-child{text-align:right;color:#898291}.invite-card .secondary-btn{display:inline-flex;align-items:center;gap:7px;text-decoration:none}
 
 .party-cost{font-size:11px;font-weight:700;color:#6b55c8;background:#f7f4ff;border-radius:8px;padding:8px 10px;margin:-5px 0 12px}.check-label{display:flex!important;flex-direction:row!important;align-items:center;gap:9px!important;font-size:12px!important}.check-label input{width:16px!important;height:16px;accent-color:#7055d9}
+
+/* Party posters and paginated celebration cards */
+.party-poster{height:150px;position:relative;overflow:hidden;background:#f1edfa}
+.party-poster>img{display:block;width:100%;height:100%;object-fit:cover}
+.poster-placeholder,.invite-poster-fallback{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#eee9ff,#f8e9df)}
+.poster-placeholder span,.invite-poster-fallback span{font-family:Georgia,serif;font-size:54px;color:#765bd2}
+.poster-placeholder small,.invite-poster-fallback small{font-size:9px;font-weight:800;letter-spacing:2px;color:#716887}
+.poster-rsvp{position:absolute;right:12px;top:12px;padding:6px 9px;border-radius:20px;background:#fffdf0e8;color:#51485e;font-size:9px;font-weight:800;letter-spacing:.6px}
+.poster-preview{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid #eee8f4;border-radius:10px;background:#faf8ff}
+.poster-preview img{width:88px;height:64px;object-fit:cover;border-radius:7px}
+.pagination{display:flex;align-items:center;justify-content:center;gap:16px;margin:28px auto 0;color:#777383;font-size:11px;font-weight:700}
+.pagination .secondary-btn{min-width:104px}
+.pagination .secondary-btn:disabled{opacity:.4;cursor:not-allowed}
+.invite-poster{height:190px;width:100%;overflow:hidden;border-radius:15px;margin:0 0 24px;background:#f1edfa}
+.invite-poster img,.celebration-poster{display:block;width:100%;height:100%;object-fit:cover;border-radius:13px}
+.invite-poster-fallback{background:linear-gradient(135deg,#eee9ff 0%,#f8e9df 55%,#e5f0e8 100%)}
+.celebration-poster{height:auto;max-height:360px;margin:18px 0;object-fit:cover}
+@media(max-width:760px){.party-poster{height:100%;min-height:180px}.pagination{gap:8px;flex-wrap:wrap}.pagination .secondary-btn{min-width:auto;padding:9px 11px}.invite-poster{height:160px}}
