@@ -147,27 +147,27 @@ select is(
   'invitation preview normalizes token case'
 );
 select throws_ok(
-  $public.submit_guest_rsvp(repeat('a',63), 'Invalid Token', 'yes', 1, 'none', null$,
+  $$public.submit_guest_rsvp(repeat('a',63), 'Invalid Token', 'yes', 1, 'none', null$$,
   'P0001', 'Invalid invitation', 'malformed invitation tokens are rejected'
 );
 select throws_ok(
-  $public.submit_guest_rsvp(repeat('a',64), 'Invalid Response', 'attending', 1, 'none', null$,
+  $$public.submit_guest_rsvp(repeat('a',64), 'Invalid Response', 'attending', 1, 'none', null$$,
   'P0001', 'Invalid RSVP response', 'unsupported RSVP responses are rejected'
 );
 select throws_ok(
-  $public.submit_guest_rsvp(repeat('a',64), 'Too Few', 'yes', 0, 'none', null$,
+  $$public.submit_guest_rsvp(repeat('a',64), 'Too Few', 'yes', 0, 'none', null$$,
   'P0001', 'Invalid guest count', 'guest counts below one are rejected'
 );
 select throws_ok(
-  $public.submit_guest_rsvp(repeat('a',64), 'Too Many', 'yes', 21, 'none', null$,
+  $$public.submit_guest_rsvp(repeat('a',64), 'Too Many', 'yes', 21, 'none', null$$,
   'P0001', 'Invalid guest count', 'guest counts above twenty are rejected'
 );
 select throws_ok(
-  $public.submit_guest_rsvp(repeat('a',64), 'Invalid Diet', 'yes', 1, 'gluten_free', null$,
+  $$public.submit_guest_rsvp(repeat('a',64), 'Invalid Diet', 'yes', 1, 'gluten_free', null$$,
   'P0001', 'Invalid dietary preference', 'unsupported dietary preferences are rejected'
 );
 select throws_ok(
-  $public.submit_guest_rsvp(repeat('a',64), 'Asha Guest', 'yes', 1, 'none', 'bad-edit-token')$,
+  $$public.submit_guest_rsvp(repeat('a',64), 'Asha Guest', 'yes', 1, 'none', 'bad-edit-token')$$,
   'P0001', 'Invalid RSVP edit permission', 'malformed RSVP edit tokens are rejected'
 );
 select is(
@@ -181,15 +181,15 @@ select is(
   'revoked invitations cannot be previewed'
 );
 select throws_ok(
-  $public.submit_guest_rsvp(repeat('d',64), 'Expired Guest', 'yes', 1, 'none', null$,
+  $$public.submit_guest_rsvp(repeat('d',64), 'Expired Guest', 'yes', 1, 'none', null$$,
   'P0001', 'Invitation is invalid, expired, or revoked', 'expired invitations cannot accept RSVPs'
 );
 select throws_ok(
-  $public.submit_guest_rsvp(repeat('e',64), 'Revoked Guest', 'yes', 1, 'none', null$,
+  $$public.submit_guest_rsvp(repeat('e',64), 'Revoked Guest', 'yes', 1, 'none', null$$,
   'P0001', 'Invitation is invalid, expired, or revoked', 'revoked invitations cannot accept RSVPs'
 );
 select throws_ok(
-  $public.submit_guest_rsvp(repeat('c',64), 'Bad' || chr(10) || 'Name', 'yes', 1, 'none', null$,
+  $$public.submit_guest_rsvp(repeat('c',64), 'Bad' || chr(10) || 'Name', 'yes', 1, 'none', null$$,
   '23514',
   'new row for relation "guest_rsvps" violates check constraint "guest_rsvps_display_name_no_control_chars"',
   'control characters in guest names are rejected by the database'
