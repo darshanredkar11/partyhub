@@ -1,19 +1,48 @@
 name: PartyHub CI
 on:
   push:
-    branches: [main, initial-partyhub-draft]
+    branches: [main, initial-partyhub-draft, "qa/**"]
   pull_request:
-    branches: [main]
+    branches: [main, initial-partyhub-draft]
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
       - run: npm install
+      - name: Dependency vulnerability audit
+        run: npm audit --audit-level=high
       - run: npx playwright install --with-deps chromium
       - run: npm run typecheck
       - run: npm run test:e2e
       - run: npm run build
+      - name: Upload Playwright report and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: partyhub-playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  database-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start local Supabase stack
+        run: supabase start
+      - name: Apply all migrations from an empty database
+        run: supabase db reset
+      - name: Run database security assertions
+        run: supabase test db
