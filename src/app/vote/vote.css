@@ -1,0 +1,33 @@
+.public-vote-page{min-height:100vh;background:#fbf7f2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 16px;color:#302b3a}
+.public-vote-card{width:min(100%,520px);padding:30px;background:#fff;border:1px solid #eee7e1;border-radius:24px;box-shadow:0 18px 60px #3324430d}
+.vote-brand{display:inline-flex;align-items:center;gap:9px;text-decoration:none;color:#302b3a;font-weight:800;font-size:19px}
+.vote-brand .brand-mark{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:#7255d5;color:#fff}
+.vote-event-label{margin-top:34px;color:#8b7ba8;font-size:10px;font-weight:800;letter-spacing:1.6px}
+.vote-illustration{margin:22px auto 15px;width:66px;height:66px;border-radius:20px;background:#f0ebff;color:#7055d5;display:grid;place-items:center}
+.public-vote-card h1{text-align:center;font-size:clamp(30px,7vw,42px);letter-spacing:-1.7px;margin:8px 0}
+.vote-description{text-align:center;color:#81798a;font-size:14px;line-height:1.6;margin:0 auto 25px;max-width:370px}
+.vote-options{display:grid;gap:10px}
+.vote-option{width:100%;display:flex;align-items:center;gap:12px;padding:15px;border:1px solid #e9e2ed;border-radius:13px;background:#fff;text-align:left;color:#302b3a}
+.vote-option.chosen{border-color:#8068dc;background:#f6f2ff;box-shadow:0 0 0 2px #8068dc20}
+.vote-radio{width:22px;height:22px;display:grid;place-items:center;border:1px solid #d8cfe7;border-radius:50%;color:#fff;font-size:12px;flex:0 0 22px}
+.vote-option.chosen .vote-radio{background:#7055d5;border-color:#7055d5}
+.vote-option strong{font-size:14px}
+.vote-submit{width:100%;margin-top:17px;justify-content:center}
+.vote-privacy{display:flex;align-items:flex-start;gap:8px;margin-top:23px;padding-top:17px;border-top:1px solid #f0ebf2;color:#928a9a;font-size:10px;line-height:1.5}
+.vote-privacy svg{flex:0 0 auto}
+.vote-success,.vote-closed{text-align:center;padding:22px 10px;color:#47865c}
+.vote-success h2{margin:10px 0 5px;color:#302b3a}
+.vote-success p,.vote-closed{font-size:13px;line-height:1.6}
+.vote-closed{display:flex;align-items:center;justify-content:center;gap:9px;color:#8b6a47}
+.vote-results{margin-top:22px;border-top:1px solid #eee8f0;padding-top:18px}
+.vote-results h2{display:flex;align-items:center;gap:8px;font-size:16px}
+.vote-result-row{margin:14px 0}
+.vote-result-row>div:first-child{display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px}
+.vote-result-track{height:8px;border-radius:10px;background:#eeeaf4;overflow:hidden}
+.vote-result-track i{display:block;height:100%;border-radius:10px;background:#8068dc}
+.vote-results>small{font-size:10px;color:#8b8293}
+.vote-error-message{color:#b34d4d;font-size:12px}
+.vote-error h1{margin-top:28px}.vote-error p{color:#82798a;font-size:13px}
+.vote-loading{padding:45px 0;text-align:center;color:#81798a;font-size:13px}
+.vote-home{display:inline-flex;align-items:center;gap:6px;margin-top:18px;color:#7a7085;text-decoration:none;font-size:12px}
+@media(max-width:480px){.public-vote-card{padding:22px 18px;border-radius:20px}.vote-event-label{margin-top:27px}}
