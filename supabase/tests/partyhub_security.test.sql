@@ -144,7 +144,7 @@ select ok(
 
 
 set local role authenticated;
-select set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);
+do $ begin perform set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true); end $;
 
 select is(
   (select count(*)::integer from public.parties where id = '22222222-2222-4222-8222-222222222222'),
@@ -185,7 +185,7 @@ select throws_ok(
   'invalid time zones are rejected in the database'
 );
 
-select set_config('request.jwt.claim.sub', '55555555-5555-4555-8555-555555555555', true);
+do $ begin perform set_config('request.jwt.claim.sub', '55555555-5555-4555-8555-555555555555', true); end $;
 select is(
   (select count(*)::integer from public.parties where id = '44444444-4444-4444-8444-444444444444'),
   1,
