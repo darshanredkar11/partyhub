@@ -86,7 +86,14 @@ export default function Home() {
     try { await navigator.clipboard.writeText(url); setCopied(partyId); setError(""); }
     catch { setError("Clipboard access was blocked. Open the invitation link and copy it from the address bar."); }
   }
-  useEffect(() => {\n    if (!showCreate) return;\n    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setShowCreate(false); };\n    window.addEventListener("keydown", onKeyDown);\n    return () => window.removeEventListener("keydown", onKeyDown);\n  }, [showCreate]);\n\n  const configMissing = !supabaseConfigured();
+  useEffect(() => {
+    if (!showCreate) return;
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setShowCreate(false); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showCreate]);
+
+  const configMissing = !supabaseConfigured();
 
   return <main className="shell">
     <header className="topbar"><a className="brand" href="/"><span className="brand-mark"><PartyPopper size={20}/></span> partyhub</a><div className="top-actions">{userEmail ? <><span className="login-link">{userEmail}</span><button className="text-btn" onClick={signOut} disabled={busy}><LogOut size={15}/> Sign out</button></> : <a className="login-link" href="/login/">Host sign in <ArrowUpRight size={15}/></a>}</div></header>
