@@ -6,7 +6,7 @@ import { getInvite, submitRsvp } from "@/lib/partyhub";
 type Invite = NonNullable<Awaited<ReturnType<typeof getInvite>>>;
 const dateText = (value: string, timezone: string) => new Intl.DateTimeFormat("en-IN", { weekday:"long", day:"numeric", month:"long", year:"numeric", timeZone:timezone }).format(new Date(value));
 const timeText = (value: string, timezone: string) => new Intl.DateTimeFormat("en-IN", { hour:"numeric", minute:"2-digit", timeZone:timezone }).format(new Date(value));
-const editKey = (token: string, name: string) => `partyhub:rsvp-edit:${token}:${name.trim().toLocaleLowerCase()}`;
+const editKey = (token: string, name: string) => `partyhub:rsvp-edit:${token}:${name.trim().toLowerCase()}`;
 
 export default function InvitePage() {
   const [token,setToken]=useState("");
