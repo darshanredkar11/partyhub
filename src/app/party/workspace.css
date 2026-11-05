@@ -55,3 +55,9 @@
 .poll-options-preview span{background:#f4f0fa;padding:7px 10px;border-radius:8px;font-size:11px;color:#675b7d}
 .poll-host-actions .secondary-btn,.poll-host-actions .text-btn{text-decoration:none}
 @media(max-width:680px){.workspace-hero{grid-template-columns:1fr;gap:18px;padding:25px 0}.workspace-cover{height:205px}.workspace-title h1{font-size:38px}.workspace-stats{grid-template-columns:repeat(2,1fr);row-gap:17px}.workspace-stats div:nth-child(2){border:0}.workspace-stats div:nth-child(3){padding-left:0}.photo-upload-panel{grid-template-columns:1fr}.photo-upload-panel .primary-btn{width:100%}.event-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-section{padding:27px 0}.poll-form-actions>*{flex:1;justify-content:center}.poll-host-actions>*{flex:1;justify-content:center}}
+
+.guest-link-count{display:flex;align-items:center;gap:7px;font-size:12px;color:#6f667b}
+.guest-link-count input{width:62px;padding:8px;border:1px solid #e6dfeb;border-radius:8px;background:#fff;color:#302b3a}
+.guest-link-list{margin-top:12px;padding:13px;border:1px solid #e8e1ee;border-radius:12px;background:#fff}
+.guest-link-list>strong{display:block;font-size:12px;margin-bottom:8px}
+.guest-link-list>div{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-top:1px solid #f1edf4;font-size:12px}
