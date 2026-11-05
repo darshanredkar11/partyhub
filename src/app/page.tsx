@@ -65,11 +65,23 @@ export default function Home() {
     finally { setBusy(false); }
   }
 
-  async function signOut() {\n    setBusy(true); setError("");\n    try { const { error } = await supabase().auth.signOut(); if (error) throw error; setParties([]); setUserEmail(""); }\n    catch { setError("We could not sign you out. Check your connection and try again."); }\n    finally { setBusy(false); }\n  }\n\n  async function copyInviteLink(partyId: string) {\n    const url = inviteLinks[partyId];\n    if (!url) return;\n    try { await navigator.clipboard.writeText(url); setCopied(partyId); setError(""); }\n    catch { setError("Clipboard access was blocked. Open the invitation link and copy it from the address bar."); }\n  }
+  async function signOut() {
+    setBusy(true); setError("");
+    try { const { error } = await supabase().auth.signOut(); if (error) throw error; setParties([]); setUserEmail(""); }
+    catch { setError("We could not sign you out. Check your connection and try again."); }
+    finally { setBusy(false); }
+  }
+
+  async function copyInviteLink(partyId: string) {
+    const url = inviteLinks[partyId];
+    if (!url) return;
+    try { await navigator.clipboard.writeText(url); setCopied(partyId); setError(""); }
+    catch { setError("Clipboard access was blocked. Open the invitation link and copy it from the address bar."); }
+  }
   const configMissing = !supabaseConfigured();
 
   return <main className="shell">
-    <header className="topbar"><a className="brand" href="/"><span className="brand-mark"><PartyPopper size={20}/></span> partyhub</a><div className="top-actions">{userEmail ? <><span className="login-link">{userEmail}</span><button className="text-btn" onClick={signOut}><LogOut size={15}/> Sign out</button></> : <a className="login-link" href="/login/">Host sign in <ArrowUpRight size={15}/></a>}</div></header>
+    <header className="topbar"><a className="brand" href="/"><span className="brand-mark"><PartyPopper size={20}/></span> partyhub</a><div className="top-actions">{userEmail ? <><span className="login-link">{userEmail}</span><button className="text-btn" onClick={signOut} disabled={busy}><LogOut size={15}/> Sign out</button></> : <a className="login-link" href="/login/">Host sign in <ArrowUpRight size={15}/></a>}</div></header>
     <section className="hero"><div className="hero-copy"><div className="eyebrow"><Sparkles size={14}/> GOOD TIMES, WELL PLANNED</div><h1>Bring your people<br/><em>together.</em></h1><p>One little place for the plans, the people and the memories that make a party.</p>{userEmail ? <button className="primary-btn" onClick={()=>setShowCreate(true)}><Plus size={18}/> Plan a celebration</button> : <a className="primary-btn link-btn" href="/login/">Sign in to get started <ArrowUpRight size={16}/></a>}</div><div className="hero-art" aria-hidden="true"><div className="art-orbit orbit-one"/><div className="art-orbit orbit-two"/><div className="art-center">✳</div><span className="floaty f1">🥂</span><span className="floaty f2">🎈</span><span className="floaty f3">🎂</span><span className="floaty f4">✦</span><div className="art-caption">MAKE IT A<br/>NIGHT TO REMEMBER</div></div></section>
     {configMissing && <div className="notice error-notice">Supabase is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to the deployment environment.</div>}
     {error && <div className="notice error-notice" role="alert">{error}</div>}
