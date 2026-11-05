@@ -37,7 +37,7 @@ export default function Home() {
       setTotalPartyCount(result.total);
     } catch (e) { setError(e instanceof Error ? e.message : "Could not load your celebrations."); }
     finally { setLoaded(true); }
-  }, []);
+  }, [currentPage]);
 
   useEffect(() => {
     if (!supabaseConfigured()) { setLoaded(true); return; }
