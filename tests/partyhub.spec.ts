@@ -40,7 +40,7 @@ async function mockHostApi(page: Page, options: { createError?: boolean; listErr
     if (url.pathname === "/auth/v1/user" && method === "GET") return fulfillJson(route, HOST);
     if (url.pathname === "/auth/v1/logout" && method === "POST") {
       if (options.signOutError) return fulfillJson(route, { message: "logout failed" }, 500);
-      return route.fulfill({ status: 204, body: "" });
+      return route.fulfill({ status: 204 });
     }
     if (url.pathname === "/rest/v1/parties" && method === "GET") {
       if (options.listError) return fulfillJson(route, { message: "database unavailable" }, 503);
@@ -210,12 +210,24 @@ test("authenticated host can create a party, create an invite and share it", asy
   expect(calls.some(call => call.path.endsWith("/rpc/create_party_invite"))).toBeTruthy();
 });
 
-test("host form blocks whitespace-only titles and mismatched arrival windows", async ({ page }) => {
+test("host form rejects whitespace-only titles", async ({ page }) => {
   await useHostSession(page);
   const calls = await mockHostApi(page);
   await page.goto("/");
   await page.getByRole("button", { name: /Plan a celebration/ }).click();
   await page.getByLabel("What's the occasion?").fill("   ");
+  await page.getByLabel("Date").fill("2027-06-10");
+  await page.getByRole("button", { name: /Create celebration/ }).click();
+  await expect(page.getByRole("alert")).toContainText(/title/i);
+  expect(calls.some(call => call.method === "POST" && call.path === "/rest/v1/parties")).toBeFalsy();
+});
+
+test("host form rejects incomplete arrival windows", async ({ page }) => {
+  await useHostSession(page);
+  const calls = await mockHostApi(page);
+  await page.goto("/");
+  await page.getByRole("button", { name: /Plan a celebration/ }).click();
+  await page.getByLabel("What's the occasion?").fill("Arrival validation party");
   await page.getByLabel("Date").fill("2027-06-10");
   await page.getByLabel("Arrival until").fill("");
   await page.getByRole("button", { name: /Create celebration/ }).click();
