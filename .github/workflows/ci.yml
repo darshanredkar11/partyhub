@@ -15,7 +15,7 @@ jobs:
           node-version: 20
       - run: npm install
       - name: Dependency vulnerability audit
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=low
       - run: npx playwright install --with-deps chromium
       - run: npm run typecheck
       - run: npm run test:e2e
