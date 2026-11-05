@@ -20,7 +20,7 @@ export default function CelebrationPage() {
         const user=await currentUser();
         if(!user) { window.location.assign("/login/"); return; }
         const {data,error}=await supabase().from("parties")
-          .select("id,title,description,party_type,starts_at,ends_at,arrival_from,arrival_until,timezone,currency,status,venue_map_url,cost_amount,cost_basis,cost_negotiable")
+          .select("id,title,description,party_type,starts_at,ends_at,arrival_from,arrival_until,timezone,currency,status,venue_map_url,poster_url,cost_amount,cost_basis,cost_negotiable")
           .eq("id",id).eq("host_id",user.id).single();
         if(error) throw error;
         if(active) setParty(data as PartyRow);
