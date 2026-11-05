@@ -281,7 +281,8 @@ test("production service worker serves a privacy-safe offline fallback", async (
   await expect(page.getByRole("heading", { name: "You're offline" })).toBeVisible();
   await context.setOffline(false);
 });
-\ntest("PWA manifest points to a real app icon", async ({ page, request }) => {
+
+test("PWA manifest points to a real app icon", async ({ page, request }) => {
   const manifestResponse = await request.get("/manifest.webmanifest");
   expect(manifestResponse.ok()).toBeTruthy();
   const manifest = await manifestResponse.json();
