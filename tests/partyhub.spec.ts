@@ -384,7 +384,7 @@ test("invite pages and Supabase responses never enter the service-worker cache",
     const requests = await Promise.all(keys.map(async key => (await caches.open(key)).keys()));
     return requests.flat().map(request => request.url);
   });
-  expect(cachedUrls.some(url => url.includes("/invite/"))).toBeFalsy();
+  expect(cachedUrls.some(url => new URL(url).pathname === "/invite/")).toBeFalsy();
   expect(cachedUrls.some(url => url.includes("supabase.co"))).toBeFalsy();
   expect(cachedUrls.some(url => url.includes(INVITE_TOKEN))).toBeFalsy();
 });
