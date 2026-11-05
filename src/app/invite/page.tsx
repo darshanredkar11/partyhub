@@ -44,7 +44,8 @@ export default function InvitePage() {
 
   async function submit(e:React.FormEvent){
     e.preventDefault();
-    if(!token||!name.trim()||busy)return;
+    if (!token || busy) return;
+    if (!name.trim()) { setError("Enter your name before sending your RSVP."); return; }
     setBusy(true);setError("");setStorageWarning(false);
     let savedEditToken = editToken;
     if (!savedEditToken) {
