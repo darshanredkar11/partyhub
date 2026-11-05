@@ -26,7 +26,7 @@ async function fulfillJson(route: Route, body: unknown, status = 200) {
   await route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 }
 
-async function mockHostApi(page: Page, options: { createError?: boolean; listError?: boolean; signOutError?: boolean } = {}) {
+async function mockHostApi(page: Page, options: { createError?: boolean; listError?: boolean; signOutError?: boolean; inviteError?: boolean; invalidInviteToken?: boolean } = {}) {
   const parties: any[] = [];
   const calls: { method: string; path: string; body?: any }[] = [];
   await page.route(`${SUPABASE}/**`, async route => {
@@ -57,7 +57,10 @@ async function mockHostApi(page: Page, options: { createError?: boolean; listErr
       parties.push(created);
       return fulfillJson(route, { id: PARTY_ID });
     }
-    if (url.pathname === "/rest/v1/rpc/create_party_invite" && method === "POST") return fulfillJson(route, INVITE_TOKEN);
+    if (url.pathname === "/rest/v1/rpc/create_party_invite" && method === "POST") {
+      if (options.inviteError) return fulfillJson(route, { message: "invite insert failed" }, 400);
+      return fulfillJson(route, options.invalidInviteToken ? "not-a-token" : INVITE_TOKEN);
+    }
     return fulfillJson(route, { message: `Unexpected mocked request: ${method} ${url.pathname}` }, 500);
   });
   return calls;
@@ -111,7 +114,7 @@ test("login rejects an empty address and sends a magic link on success", async (
 });
 
 test("login displays a recoverable provider failure", async ({ page }) => {
-  await page.route(`${SUPABASE}/auth/v1/otp`, route => fulfillJson(route, { message: "mail provider unavailable" }, 503));
+  await page.route(`${SUPABASE}/auth/v1/otp**`, route => fulfillJson(route, { message: "mail provider unavailable" }, 503));
   await page.goto("/login/");
   await page.getByLabel("Email address").fill("host@example.test");
   await page.getByRole("button", { name: /Send magic link/ }).click();
@@ -265,7 +268,88 @@ test("failed sign-out keeps the host session visible and reports the failure", a
   await expect(page.getByText("host@example.test")).toBeVisible();
 });
 
-test("mobile home has no horizontal overflow and all key actions remain reachable", async ({ page }) => {
+
+test("host can dismiss the create dialog with its close control and Escape", async ({ page }) => {
+  await useHostSession(page);
+  await mockHostApi(page);
+  await page.goto("/");
+  await page.getByRole("button", { name: /Plan a celebration/ }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.getByRole("button", { name: "Close dialog" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.getByRole("button", { name: /Plan a celebration/ }).click();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+});
+
+test("host refresh control reloads without breaking the dashboard", async ({ page }) => {
+  await useHostSession(page);
+  await mockHostApi(page);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Refresh celebrations" }).click();
+  await expect(page.getByText("host@example.test")).toBeVisible();
+  await expect(page.getByRole("alert")).toHaveCount(0);
+});
+
+test("host invitation creation errors and malformed tokens are handled", async ({ page }) => {
+  await useHostSession(page);
+  await mockHostApi(page, { inviteError: true });
+  await page.goto("/");
+  await page.getByRole("button", { name: /Plan a celebration/ }).click();
+  await page.getByLabel("What's the occasion?").fill("Invite failure party");
+  await page.getByLabel("Date").fill("2027-06-10");
+  await page.getByRole("button", { name: /Create celebration/ }).click();
+  await expect(page.getByRole("heading", { name: "Invite failure party" })).toBeVisible();
+  await page.getByRole("button", { name: /Create invite/ }).click();
+  await expect(page.getByRole("alert")).toContainText(/couldn’t create the invitation/i);
+});
+
+test("host can sign out successfully", async ({ page }) => {
+  await useHostSession(page);
+  await mockHostApi(page);
+  await page.goto("/");
+  await page.getByRole("button", { name: /Sign out/ }).click();
+  await expect(page.getByRole("link", { name: /Host sign in/ }).first()).toBeVisible();
+  await expect(page.getByText("host@example.test")).toHaveCount(0);
+});
+
+test("guest cannot submit a whitespace-only name", async ({ page }) => {
+  const calls = await mockInviteApi(page);
+  await page.goto(`/invite/?token=${INVITE_TOKEN}`);
+  await page.getByLabel("Your name").fill("   ");
+  await page.getByRole("button", { name: /Send my RSVP/ }).click();
+  await expect(page.getByRole("alert")).toContainText(/couldn’t save your RSVP/i);
+  expect(calls.some(call => call.path.endsWith("/submit_guest_rsvp"))).toBeFalsy();
+});
+
+test("guest can choose the maximum supported party size and decline", async ({ page }) => {
+  const calls = await mockInviteApi(page);
+  await page.goto(`/invite/?token=${INVITE_TOKEN}`);
+  await page.getByLabel("Your name").fill("Declining Guest");
+  await page.getByRole("button", { name: /Can't make it/ }).click();
+  await page.getByLabel(/Number of guests including you/).selectOption("20");
+  await page.getByRole("button", { name: /Send my RSVP/ }).click();
+  await expect(page.getByRole("heading", { name: "Thanks, Declining Guest!" })).toBeVisible();
+  const submit = calls.find(call => call.path.endsWith("/submit_guest_rsvp"));
+  expect(submit.body.p_response).toBe("no");
+  expect(submit.body.p_guest_count).toBe(20);
+});
+
+test("copy-link failure is reported without losing the invitation URL", async ({ page, context }) => {
+  await useHostSession(page);
+  await mockHostApi(page);
+  await context.grantPermissions([], { origin: "http://127.0.0.1:3000" });
+  await page.goto("/");
+  await page.getByRole("button", { name: /Plan a celebration/ }).click();
+  await page.getByLabel("What's the occasion?").fill("Clipboard party");
+  await page.getByLabel("Date").fill("2027-06-10");
+  await page.getByRole("button", { name: /Create celebration/ }).click();
+  await page.getByRole("button", { name: /Create invite/ }).click();
+  await page.getByRole("button", { name: /Copy link/ }).click();
+  await expect(page.getByRole("alert")).toContainText(/clipboard access was blocked/i);
+  await expect(page.getByRole("link", { name: /Share on WhatsApp/ })).toBeVisible();
+});
+\ntest("mobile home has no horizontal overflow and all key actions remain reachable", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await expect(page.getByRole("link", { name: /Host sign in/ }).first()).toBeVisible();
