@@ -56,3 +56,5 @@ jobs:
 
       - name: Verify migration history
         run: supabase migration list --linked
+
+# Triggered by the repository workflow setup after credentials were configured.
