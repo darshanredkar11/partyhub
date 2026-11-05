@@ -2,7 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions, pg_temp;
 
-select plan(36);
+select plan(48);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'parties', 'parties table exists');
@@ -85,6 +85,22 @@ insert into public.parties (
   now() + interval '2 days 4 hours', 'UTC', 'GBP', 'published'
 );
 
+insert into public.invitations (
+  id, party_id, token_hash, expires_at, max_uses, uses_count, created_by
+) values
+  ('66666666-6666-4666-8666-666666666666',
+   '22222222-2222-4222-8222-222222222222',
+   extensions.digest(convert_to(repeat('c',64), 'UTF8'), 'sha256'),
+   now() + interval '1 day', 10, 0, '11111111-1111-4111-8111-111111111111'),
+  ('77777777-7777-4777-8777-777777777777',
+   '22222222-2222-4222-8222-222222222222',
+   extensions.digest(convert_to(repeat('d',64), 'UTF8'), 'sha256'),
+   now() - interval '1 day', 10, 0, '11111111-1111-4111-8111-111111111111'),
+  ('88888888-8888-4888-8888-888888888888',
+   '22222222-2222-4222-8222-222222222222',
+   extensions.digest(convert_to(repeat('e',64), 'UTF8'), 'sha256'),
+   now() + interval '1 day', 10, 0, '11111111-1111-4111-8111-111111111111', now());
+
 create temporary table rsvp_test_tokens(edit_token text);
 grant select, insert on rsvp_test_tokens to anon;
 
@@ -92,7 +108,7 @@ set local role anon;
 
 select lives_ok(
   $$insert into pg_temp.rsvp_test_tokens(edit_token)
-    select (public.submit_guest_rsvp(repeat('a',64), 'Asha Guest', 'yes', 1, 'none', null))->>'edit_token'$$,
+    select (public.submit_guest_rsvp(upper(repeat('a',64)), 'Asha Guest', 'yes', 1, 'none', null))->>'edit_token'$$,
   'first guest RSVP succeeds and receives a private edit secret'
 );
 
@@ -122,6 +138,61 @@ select throws_ok(
   'P0001',
   'This invitation has reached its guest limit',
   'a new guest is rejected when the invitation use limit is reached'
+);
+
+
+select is(
+  (select count(*)::integer from public.get_invitation_preview(upper(repeat('a',64)))),
+  1,
+  'invitation preview normalizes token case'
+);
+select throws_ok(
+  $select public.submit_guest_rsvp(repeat('a',63), 'Invalid Token', 'yes', 1, 'none', null)$,
+  'P0001', 'Invalid invitation', 'malformed invitation tokens are rejected'
+);
+select throws_ok(
+  $select public.submit_guest_rsvp(repeat('a',64), 'Invalid Response', 'attending', 1, 'none', null)$,
+  'P0001', 'Invalid RSVP response', 'unsupported RSVP responses are rejected'
+);
+select throws_ok(
+  $select public.submit_guest_rsvp(repeat('a',64), 'Too Few', 'yes', 0, 'none', null)$,
+  'P0001', 'Invalid guest count', 'guest counts below one are rejected'
+);
+select throws_ok(
+  $select public.submit_guest_rsvp(repeat('a',64), 'Too Many', 'yes', 21, 'none', null)$,
+  'P0001', 'Invalid guest count', 'guest counts above twenty are rejected'
+);
+select throws_ok(
+  $select public.submit_guest_rsvp(repeat('a',64), 'Invalid Diet', 'yes', 1, 'gluten_free', null)$,
+  'P0001', 'Invalid dietary preference', 'unsupported dietary preferences are rejected'
+);
+select throws_ok(
+  $select public.submit_guest_rsvp(repeat('a',64), 'Asha Guest', 'yes', 1, 'none', 'bad-edit-token')$,
+  'P0001', 'Invalid RSVP edit permission', 'malformed RSVP edit tokens are rejected'
+);
+select is(
+  (select count(*)::integer from public.get_invitation_preview(repeat('d',64))),
+  0,
+  'expired invitations cannot be previewed'
+);
+select is(
+  (select count(*)::integer from public.get_invitation_preview(repeat('e',64))),
+  0,
+  'revoked invitations cannot be previewed'
+);
+select throws_ok(
+  $select public.submit_guest_rsvp(repeat('d',64), 'Expired Guest', 'yes', 1, 'none', null)$,
+  'P0001', 'Invitation is invalid, expired, or revoked', 'expired invitations cannot accept RSVPs'
+);
+select throws_ok(
+  $select public.submit_guest_rsvp(repeat('e',64), 'Revoked Guest', 'yes', 1, 'none', null)$,
+  'P0001', 'Invitation is invalid, expired, or revoked', 'revoked invitations cannot accept RSVPs'
+);
+select throws_ok(
+  $select public.submit_guest_rsvp(repeat('c',64), 'Bad' || chr(10) || 'Name', 'yes', 1, 'none', null)$,
+  '23514',
+  'new row for relation "guest_rsvps" violates check constraint "guest_rsvps_display_name_no_control_chars"',
+  'control characters in guest names are rejected by the database'
 );
 
 reset role;
