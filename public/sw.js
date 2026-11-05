@@ -1,5 +1,5 @@
 const CACHE_NAME = "partyhub-static-v2";
-const STATIC_PATHS = ["/manifest.webmanifest", "/offline.html", "/icons/icon.svg"];
+const STATIC_PATHS = ["/manifest.webmanifest", "/offline.html", "/icons/icon.svg", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", event => {
   event.waitUntil(
@@ -26,7 +26,7 @@ self.addEventListener("fetch", event => {
   // invitation pages, auth state and all private API responses remain uncached.
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(async () => (await caches.match("/offline.html")) || Response.error())
+      fetch(request).catch(async () => (await caches.match(new URL("/offline.html", self.location.origin).toString())) || Response.error())
     );
     return;
   }
