@@ -4,7 +4,7 @@ export type PartyRow = {
   id: string; title: string; description: string; party_type: string;
   starts_at: string; ends_at: string; arrival_from: string | null;
   arrival_until: string | null; timezone: string; currency: "INR" | "GBP";
-  status: string; venue_ciphertext?: string | null;
+  status: string; venue_ciphertext?: string | null; venue_map_url?: string | null; cost_amount?: number | null; cost_basis?: "per_person" | "per_venue" | "per_hour" | "total" | null; cost_negotiable?: boolean;
   guest_rsvps?: { id: string; display_name: string; response: "yes" | "no" | "maybe"; guest_count: number; dietary_type: string | null }[];
 };
 
@@ -24,7 +24,7 @@ export async function listHostParties(): Promise<PartyRow[]> {
   const user = await currentUser();
   if (!user) return [];
   const { data, error } = await supabase().from("parties")
-    .select("id,title,description,party_type,starts_at,ends_at,arrival_from,arrival_until,timezone,currency,status,guest_rsvps(id,display_name,response,guest_count,dietary_type)")
+    .select("id,title,description,party_type,starts_at,ends_at,arrival_from,arrival_until,timezone,currency,status,venue_map_url,cost_amount,cost_basis,cost_negotiable,guest_rsvps(id,display_name,response,guest_count,dietary_type)")
     .eq("host_id", user.id).order("starts_at", { ascending: true });
   if (error) throw error;
   return (data ?? []) as PartyRow[];
@@ -32,7 +32,8 @@ export async function listHostParties(): Promise<PartyRow[]> {
 export async function createParty(input: {
   title: string; description: string; partyType: string; date: string;
   start: string; end: string; arrivalFrom: string; arrivalUntil: string;
-  timezone: string; currency: "INR" | "GBP";
+  timezone: string; currency: "INR" | "GBP"; venueMapUrl: string | null;
+  costAmount: number | null; costBasis: "per_person" | "per_venue" | "per_hour" | "total"; costNegotiable: boolean;
 }) {
   const user = await currentUser();
   if (!user) throw new Error("Sign in to create a celebration.");
@@ -53,7 +54,7 @@ export async function createParty(input: {
     host_id: user.id, title: input.title.trim(), description: input.description.trim(),
     party_type: input.partyType, starts_at: startsAt, ends_at: endsAt,
     arrival_from: arrivalFrom, arrival_until: arrivalUntil,
-    timezone: input.timezone, currency: input.currency, status: "published"
+    timezone: input.timezone, currency: input.currency, venue_map_url: input.venueMapUrl, cost_amount: input.costAmount, cost_basis: input.costBasis, cost_negotiable: input.costNegotiable, status: "published"
   }).select("id").single();
   if (error) throw error;
   return data.id as string;
