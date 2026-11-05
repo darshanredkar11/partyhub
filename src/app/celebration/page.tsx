@@ -1,88 +1,38 @@
 "use client";
-import "./celebration.css";
-import { useEffect, useState } from "react";
-import { ArrowLeft, CalendarDays, Clock3, Copy, MapPin, PartyPopper, Sparkles, Users, Wallet, CheckCircle2, Share2 } from "lucide-react";
-import { createInvite, currentUser, supabase, type PartyRow } from "@/lib/partyhub";
+import "../party/workspace.css";
+import {useEffect,useState} from "react";
+import {ArrowLeft,CalendarDays,Clock3,MapPin,Users,Camera,Plus,Vote,Copy,CheckCircle2,Utensils,Lock,ExternalLink,ImagePlus,XCircle} from "lucide-react";
+import {currentUser,getHostParty,uploadPartyPhoto,createAwardPoll,supabase} from "@/lib/partyhub";
 
-export default function CelebrationPage() {
-  const [party,setParty]=useState<PartyRow|null>(null);
-  const [loading,setLoading]=useState(true);
-  const [error,setError]=useState("");
-  const [inviteUrl,setInviteUrl]=useState("");
-  const [busy,setBusy]=useState(false);
-  const [copied,setCopied]=useState(false);
-  const [posterFailed,setPosterFailed]=useState(false);
-
-  useEffect(()=>{
-    let active=true;
-    (async()=>{
-      try {
-        const params=new URLSearchParams(window.location.search);
-        setPosterFailed(params.get("poster")==="failed");
-        const id=params.get("id");
-        if(!id) throw new Error("Celebration link is missing its ID.");
-        const user=await currentUser();
-        if(!user) { window.location.assign("/login/"); return; }
-        const {data,error}=await supabase().from("parties")
-          .select("id,title,description,party_type,starts_at,ends_at,arrival_from,arrival_until,timezone,currency,status,venue_map_url,poster_url,cost_amount,cost_basis,cost_negotiable")
-          .eq("id",id).eq("host_id",user.id).single();
-        if(error) throw error;
-        if(active) setParty(data as PartyRow);
-      } catch(e) { if(active) setError(e instanceof Error?e.message:"Could not load your celebration."); }
-      finally { if(active) setLoading(false); }
-    })();
-    return ()=>{active=false;};
-  },[]);
-
-  async function makeInvite(){
-    if(!party) return;
-    setBusy(true);setError("");
-    try {
-      const token=await createInvite(party.id);
-      const url=window.location.origin+"/invite/?token="+encodeURIComponent(token);
-      setInviteUrl(url);
-      try { await navigator.clipboard.writeText(url);setCopied(true); }
-      catch { window.prompt("Copy your invitation link",url); }
-    } catch(e) { setError(e instanceof Error?e.message:"Could not create invitation."); }
-    finally { setBusy(false); }
-  }
-
-  const money=party?.cost_amount!==null&&party?.cost_amount!==undefined
-    ? new Intl.NumberFormat("en-IN",{style:"currency",currency:party.currency,maximumFractionDigits:2}).format(party.cost_amount)
-    : "";
-  const basis=party?({per_person:"Per person",per_venue:"Per venue",per_hour:"Per hour",total:"Total budget"} as Record<string,string>)[party.cost_basis??"total"]:"";
-  const date=party?new Intl.DateTimeFormat("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:party.timezone}).format(new Date(party.starts_at)):"";
-  const start=party?new Intl.DateTimeFormat("en-IN",{hour:"numeric",minute:"2-digit",timeZone:party.timezone}).format(new Date(party.starts_at)):"";
-  const end=party?new Intl.DateTimeFormat("en-IN",{hour:"numeric",minute:"2-digit",timeZone:party.timezone}).format(new Date(party.ends_at)):"";
-
-  return <main className="shell celebration-shell">
-    <header className="topbar"><a className="brand" href="/"><span className="brand-mark"><PartyPopper size={20}/></span> partyhub</a><a className="login-link" href="/"><ArrowLeft size={15}/> Your celebrations</a></header>
-    <section className="celebration-page">
-      {loading?<div className="empty-state">Loading your celebration…</div>:error?<div className="notice error-notice" role="alert">{error}</div>:party&&<>
-        <div className="celebration-success"><span className="celebration-success-icon"><CheckCircle2 size={18}/></span><span>CELEBRATION CREATED</span></div>
-        <div className="celebration-heading">
-          <div><div className="eyebrow"><Sparkles size={14}/> THE GOOD TIMES START HERE</div><h1>{party.title}</h1><p>Your celebration is saved. Now let's get your people together.</p></div>
-        </div>
-        <article className="celebration-feature">
-          <div className="celebration-art">
-            {party.poster_url?<img src={party.poster_url} alt={party.title+" poster"}/>:<div className="celebration-art-fallback"><span>✳</span><strong>{party.title}</strong><small>YOU'RE INVITED TO CELEBRATE</small><i>✦　✧　✦</i></div>}
-          </div>
-          <div className="celebration-details">
-            <div className="celebration-detail-grid">
-              <div className="celebration-detail"><span className="detail-icon"><CalendarDays size={18}/></span><div><small>DATE</small><strong>{date}</strong></div></div>
-              <div className="celebration-detail"><span className="detail-icon"><Clock3 size={18}/></span><div><small>TIME</small><strong>{start} – {end}</strong></div></div>
-              {money&&<div className="celebration-detail"><span className="detail-icon"><Wallet size={18}/></span><div><small>COST · {basis.toUpperCase()}</small><strong>{money}{party.cost_negotiable?" · Negotiable":""}</strong></div></div>}
-              {party.venue_map_url&&<div className="celebration-detail"><span className="detail-icon"><MapPin size={18}/></span><div><small>VENUE</small><a href={party.venue_map_url} target="_blank" rel="noreferrer">View venue in Maps ↗</a></div></div>}
-            </div>
-            {party.description&&<div className="celebration-host-note"><small>A NOTE FROM THE HOST</small><p>{party.description}</p></div>}
-          </div>
-        </article>
-        {posterFailed&&<div className="notice error-notice">Your party was created, but the poster upload failed. You can still invite guests; try uploading the poster again later.</div>}
-        <section className="celebration-invite-panel"><div className="invite-panel-icon"><Users size={22}/></div><div className="invite-panel-copy"><h2>Make it a party.</h2><p>Create a private invitation link and send it to your guests.</p></div><button className="primary-btn" onClick={()=>void makeInvite()} disabled={busy}><Share2 size={17}/>{busy?"Creating invitation…":"Create invitation link"}</button></section>
-        {inviteUrl&&<div className="celebration-share-result"><div><CheckCircle2 size={18}/><strong>Your invitation link is ready!</strong></div><p>{inviteUrl}</p><div className="celebration-share-actions"><button className="secondary-btn" onClick={()=>{void navigator.clipboard.writeText(inviteUrl);setCopied(true);}}><Copy size={15}/>{copied?"Copied!":"Copy link"}</button><a className="primary-btn" href={"https://wa.me/?text="+encodeURIComponent("You're invited to "+party.title+"! "+inviteUrl)} target="_blank" rel="noreferrer">Share on WhatsApp ↗</a></div></div>}
-        <a className="celebration-back" href="/"><ArrowLeft size={15}/> Back to your celebrations</a>
-      </>}
-    </section>
-    <footer><span>partyhub ✳</span><span>Made for the moments that matter.</span><span>India · UK</span></footer>
-  </main>;
+type EventData=any;
+export default function PartyWorkspace(){
+ const [id,setId]=useState("");
+ const [party,setParty]=useState<EventData|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[busy,setBusy]=useState(false);
+ const [photoFiles,setPhotoFiles]=useState<File[]>([]),[photoCaption,setPhotoCaption]=useState("");
+ const [pollTitle,setPollTitle]=useState("Best Dancer"),[pollDescription,setPollDescription]=useState(""),[nominees,setNominees]=useState(["",""]);
+ const [copied,setCopied]=useState("");
+ async function load(partyId:string){setError("");try{const u=await currentUser();if(!u){location.assign("/login/");return;}setParty(await getHostParty(partyId));}catch(e){setError(e instanceof Error?e.message:"Could not load event.");}finally{setLoading(false);}}
+ useEffect(()=>{const partyId=new URLSearchParams(location.search).get("id")??"";if(!partyId){setError("Celebration link is missing its ID.");setLoading(false);return;}setId(partyId);void load(partyId);},[]);
+ const fmtDate=(v:string)=>new Intl.DateTimeFormat("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:party?.timezone}).format(new Date(v));
+ const fmtTime=(v:string)=>new Intl.DateTimeFormat("en-IN",{hour:"numeric",minute:"2-digit",timeZone:party?.timezone}).format(new Date(v));
+ async function addPhotos(e:React.FormEvent){e.preventDefault();if(!photoFiles.length)return;setBusy(true);setError("");try{for(const file of photoFiles)await uploadPartyPhoto(id,file,photoCaption);setPhotoFiles([]);setPhotoCaption("");await load(id);}catch(e){setError(e instanceof Error?e.message:"Could not upload photos.");}finally{setBusy(false);}}
+ async function makePoll(e:React.FormEvent){e.preventDefault();const opts=nominees.map(x=>x.trim()).filter(Boolean);if(opts.length<2){setError("Add at least two nominees.");return;}setBusy(true);setError("");try{await createAwardPoll(id,pollTitle,pollDescription,opts);setPollTitle("Best Dancer");setPollDescription("");setNominees(["",""]);await load(id);}catch(e){setError(e instanceof Error?e.message:"Could not create poll.");}finally{setBusy(false);}}
+ async function closePoll(pollId:string){setBusy(true);try{const {error}=await supabase().from("award_polls").update({status:"closed",closed_at:new Date().toISOString()}).eq("id",pollId);if(error)throw error;await load(id);}catch(e){setError(e instanceof Error?e.message:"Could not close poll.");}finally{setBusy(false);}}
+ const guests=party?.guest_rsvps??[],yes=guests.filter((g:any)=>g.response==="yes"),polls=party?.award_polls??[];
+ if(loading)return <main className="shell workspace-shell"><div className="empty-state">Loading your event space…</div></main>;
+ return <main className="shell workspace-shell"><header className="topbar"><a className="brand" href="/"><span className="brand-mark">✳</span> partyhub</a><a className="login-link" href="/"><ArrowLeft size={15}/> Your celebrations</a></header>
+ {error&&<div className="notice error-notice" role="alert">{error}</div>}
+ {!party?<div className="empty-state"><h2>Event not found</h2><p>{error||"This celebration may have been removed."}</p><a className="secondary-btn" href="/">Back to celebrations</a></div>:<>
+ <section className="workspace-hero"><div className="workspace-cover">{party.poster_url?<img src={party.poster_url} alt={party.title}/>:<div className="workspace-cover-fallback"><span>✳</span><small>YOUR CELEBRATION</small></div>}</div><div className="workspace-title"><div className="eyebrow">YOUR EVENT SPACE</div><h1>{party.title}</h1><p>{party.description||"All the details, guests and memories in one place."}</p><div className="workspace-meta"><span><CalendarDays size={16}/>{fmtDate(party.starts_at)}</span><span><Clock3 size={16}/>{fmtTime(party.starts_at)} – {fmtTime(party.ends_at)}</span>{party.venue_map_url&&<a href={party.venue_map_url} target="_blank" rel="noreferrer"><MapPin size={16}/> Venue map</a>}</div></div></section>
+ <section className="workspace-stats"><div><strong>{guests.length}</strong><span>RSVP RESPONSES</span></div><div><strong>{yes.reduce((n:number,g:any)=>n+g.guest_count,0)}</strong><span>ATTENDING</span></div><div><strong>{party.party_photos?.length??0}</strong><span>PHOTOS</span></div><div><strong>{polls.length}</strong><span>AWARD POLLS</span></div></section>
+ <section className="workspace-section"><div className="workspace-section-head"><div><div className="eyebrow">THE PEOPLE</div><h2>Guest list & food preferences</h2><p>Dietary preferences shared by guests in their RSVP.</p></div></div>
+ {guests.length===0?<div className="workspace-empty">No one has responded yet. Share your invitation link to get started.</div>:<div className="guest-table-wrap"><table className="guest-table"><thead><tr><th>Guest</th><th>Response</th><th>Guests</th><th>Food preference</th></tr></thead><tbody>{guests.map((g:any)=><tr key={g.id}><td><strong>{g.display_name}</strong></td><td><span className={"response-pill "+g.response}>{g.response}</span></td><td>{g.guest_count}</td><td><span className="diet-label"><Utensils size={14}/>{(g.dietary_type||"No preference").replaceAll("_"," ")}</span></td></tr>)}</tbody></table></div>}</section>
+ <section className="workspace-section"><div className="workspace-section-head"><div><div className="eyebrow">THE MEMORIES</div><h2>Event photos</h2><p>Add pictures from the night to your event gallery.</p></div><span className="section-count">{party.party_photos?.length??0} photos</span></div>
+ <form className="photo-upload-panel" onSubmit={addPhotos}><label className="photo-file-label"><ImagePlus size={20}/><span>{photoFiles.length?photoFiles.length+" photo(s) selected":"Choose photos to upload"}</span><small>JPG, PNG or WebP · up to 10 MB each</small><input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e=>setPhotoFiles(Array.from(e.target.files??[]))}/></label><input className="workspace-text-input" value={photoCaption} onChange={e=>setPhotoCaption(e.target.value)} placeholder="Optional caption for these photos"/><button className="primary-btn" disabled={busy||!photoFiles.length}><Camera size={16}/>{busy?"Uploading…":"Add to gallery"}</button></form>
+ {(party.party_photos??[]).length>0?<div className="event-photo-grid">{party.party_photos.map((ph:any)=><figure key={ph.id}><img src={ph.public_url} alt={ph.caption||"Event memory"}/>{ph.caption&&<figcaption>{ph.caption}</figcaption>}</figure>)}</div>:<div className="workspace-empty">Your photo gallery is waiting for its first memory. ✨</div>}</section>
+ <section className="workspace-section"><div className="workspace-section-head"><div><div className="eyebrow">A LITTLE FRIENDLY COMPETITION</div><h2>Award polls</h2><p>Create fun awards and let everyone vote anonymously using a public link.</p></div></div>
+ <form className="poll-create-panel" onSubmit={makePoll}><h3><Vote size={19}/> Create an award poll</h3><label>Award title<input className="workspace-text-input" value={pollTitle} onChange={e=>setPollTitle(e.target.value)} placeholder="e.g. Best Dancer" required maxLength={120}/></label><label>Optional description<input className="workspace-text-input" value={pollDescription} onChange={e=>setPollDescription(e.target.value)} placeholder="Choose the star of the dance floor"/></label><div className="nominee-list"><strong>Nominees / choices</strong>{nominees.map((n,i)=><div className="nominee-input-row" key={i}><input className="workspace-text-input" value={n} onChange={e=>setNominees(old=>old.map((v,j)=>j===i?e.target.value:v))} placeholder={"Nominee "+(i+1)} maxLength={100}/>{nominees.length>2&&<button type="button" className="icon-plain" onClick={()=>setNominees(old=>old.filter((_,j)=>j!==i))} aria-label="Remove nominee"><XCircle size={17}/></button>}</div>)}</div><div className="poll-form-actions"><button type="button" className="secondary-btn" disabled={nominees.length>=30} onClick={()=>setNominees(old=>[...old,""])}><Plus size={15}/> Add nominee</button><button className="primary-btn" disabled={busy}><Vote size={16}/>{busy?"Creating…":"Create poll & voting link"}</button></div><small className="poll-privacy-note"><Lock size={13}/> Voting is anonymous. No guest names are collected with votes.</small></form>
+ <div className="poll-list">{polls.map((poll:any)=><article className="poll-host-card" key={poll.id}><div className="poll-host-top"><div><span className={"response-pill "+poll.status}>{poll.status}</span><h3>{poll.title}</h3>{poll.description&&<p>{poll.description}</p>}</div><Vote size={22}/></div><div className="poll-options-preview">{(poll.award_poll_options??[]).map((o:any)=><span key={o.id}>{o.label}</span>)}</div><div className="poll-host-actions"><a className="secondary-btn" href={"/vote/?id="+encodeURIComponent(poll.id)} target="_blank" rel="noreferrer"><ExternalLink size={15}/> Open voting page</a><button className="secondary-btn" onClick={()=>{const url=location.origin+"/vote/?id="+encodeURIComponent(poll.id);void navigator.clipboard.writeText(url);setCopied(poll.id);}}><Copy size={15}/>{copied===poll.id?"Copied!":"Copy public link"}</button>{poll.status==="open"&&<button className="text-btn" onClick={()=>void closePoll(poll.id)} disabled={busy}>Close poll</button>}</div></article>)}</div></section>
+ </>}
+ <footer><span>partyhub ✳</span><span>Made for the moments that matter.</span><span>India · UK</span></footer></main>;
 }
