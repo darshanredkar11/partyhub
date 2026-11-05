@@ -15,7 +15,7 @@ test("guest invitation rejects missing or invalid token safely", async ({ page }
 
 test("login page renders accessible email and password account forms", async ({ page }) => {
   await page.goto("/login/");
-  await expect(page.getByRole("heading", { name: "Welcome back." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Create your account." })).toBeVisible();
   await expect(page.getByLabel("Email address")).toBeVisible();
   await expect(page.getByLabel("Password")).toBeVisible();
   await expect(page.getByRole("button", { name: /Create account/ })).toBeVisible();
