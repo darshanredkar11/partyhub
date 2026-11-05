@@ -21,12 +21,11 @@ export async function currentUser() {
   if (error) throw error;
   return data.user;
 }
-export async function listHostParties(): Promise<PartyRow[]> {
-  const user = await currentUser();
-  if (!user) return [];
+export async function listHostParties(userId: string): Promise<PartyRow[]> {
+  if (!userId) throw new Error("A signed-in host is required.");
   const { data, error } = await supabase().from("parties")
     .select("id,title,description,party_type,starts_at,ends_at,arrival_from,arrival_until,timezone,currency,status,guest_rsvps(id,display_name,response,guest_count,dietary_type)")
-    .eq("host_id", user.id).order("starts_at", { ascending: true });
+    .eq("host_id", userId).order("starts_at", { ascending: true });
   if (error) throw error;
   return (data ?? []) as PartyRow[];
 }
