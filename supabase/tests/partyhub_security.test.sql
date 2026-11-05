@@ -2,7 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions, pg_temp;
 
-select plan(28);
+select plan(36);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'parties', 'parties table exists');
@@ -67,6 +67,24 @@ insert into public.invitations (
   now() + interval '1 day', 1, 0, '11111111-1111-4111-8111-111111111111'
 );
 
+insert into auth.users (
+  id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+) values (
+  '55555555-5555-4555-8555-555555555555',
+  'authenticated', 'authenticated', 'partyhub-security-test-2@example.test', '',
+  now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, now(), now()
+);
+
+insert into public.parties (
+  id, host_id, title, party_type, starts_at, ends_at, timezone, currency, status
+) values (
+  '44444444-4444-4444-8444-444444444444',
+  '55555555-5555-4555-8555-555555555555',
+  'Other host party', 'dinner', now() + interval '2 days',
+  now() + interval '2 days 4 hours', 'UTC', 'GBP', 'published'
+);
+
 create temporary table rsvp_test_tokens(edit_token text);
 grant select, insert on rsvp_test_tokens to anon;
 
@@ -123,6 +141,63 @@ select ok(
      and r.display_name = 'Asha Guest'),
   'the database stores only the SHA-256 edit-secret hash'
 );
+
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);
+
+select is(
+  (select count(*)::integer from public.parties where id = '22222222-2222-4222-8222-222222222222'),
+  1,
+  'host A can read their own party'
+);
+select is(
+  (select count(*)::integer from public.parties where id = '44444444-4444-4444-8444-444444444444'),
+  0,
+  'host A cannot read host B party'
+);
+select is(
+  (with changed as (
+    update public.parties set title = 'Unauthorized update'
+    where id = '44444444-4444-4444-8444-444444444444' returning 1
+  ) select count(*)::integer from changed),
+  0,
+  'host A cannot update host B party'
+);
+select is(
+  (select count(*)::integer from public.guest_rsvps
+   where invitation_id = '33333333-3333-4333-8333-333333333333'),
+  1,
+  'host A can read guest RSVPs for their party'
+);
+select throws_ok(
+  $update public.parties set host_id = '55555555-5555-4555-8555-555555555555'
+    where id = '22222222-2222-4222-8222-222222222222'$,
+  'P0001',
+  'Party host cannot be changed after creation',
+  'party host identity cannot be reassigned'
+);
+select throws_ok(
+  $update public.parties set timezone = 'Not/AReal_TimeZone'
+    where id = '22222222-2222-4222-8222-222222222222'$,
+  'P0001',
+  'Invalid party time zone',
+  'invalid time zones are rejected in the database'
+);
+
+select set_config('request.jwt.claim.sub', '55555555-5555-4555-8555-555555555555', true);
+select is(
+  (select count(*)::integer from public.parties where id = '44444444-4444-4444-8444-444444444444'),
+  1,
+  'host B can read their own party'
+);
+select is(
+  (select count(*)::integer from public.guest_rsvps
+   where invitation_id = '33333333-3333-4333-8333-333333333333'),
+  0,
+  'host B cannot read host A guest RSVPs'
+);
+reset role;
 
 select * from finish();
 rollback;
