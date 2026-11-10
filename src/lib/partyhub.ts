@@ -117,8 +117,8 @@ export async function getHostParty(partyId:string) {
  const user=await currentUser();if(!user)throw new Error("Sign in to view this celebration.");
  const {data,error}=await supabase().from("parties")
   .select("id,title,description,party_type,starts_at,ends_at,arrival_from,arrival_until,timezone,currency,status,venue_map_url,poster_url,cost_amount,cost_basis,cost_negotiable,guest_rsvps(id,display_name,response,guest_count,dietary_type,created_at),party_photos(id,public_url,caption,created_at),award_polls(id,title,description,status,created_at,award_poll_options(id,label))")
-  .eq("id",partyId).eq("host_id",user.id).single();
- if(error)throw new Error("Could not load this celebration. It may not exist or you may not have access.");
+  .eq("id",partyId).single();
+ if(error)throw new Error("Could not load this celebration. It may not exist or you may not be an accepted member.");
  return data;
 }
 export async function uploadPartyPhoto(partyId:string,file:File,caption:string) {
