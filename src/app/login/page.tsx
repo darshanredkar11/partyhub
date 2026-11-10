@@ -38,9 +38,9 @@ export default function LoginPage(){
  return <main className="invite-page"><div className="invite-card login-card">
   <a className="back-link" href="/"><ArrowLeft size={15}/> Back to PartyHub</a>
   <div className="brand"><span className="brand-mark"><PartyPopper size={20}/></span> partyhub</div>
-  <div className="eyebrow">HOST ACCESS</div>
+  <div className="eyebrow">YOUR PARTYHUB ACCOUNT</div>
   <h1>{mode==="signup"?"Create your account.":"Welcome back."}</h1>
-  <p>{mode==="signup"?"Create an account to plan celebrations and manage guest responses.":"Sign in to manage your celebrations."}</p>
+  <p>{mode==="signup"?"One account for hosting celebrations, joining friends and keeping memories.":"Sign in to continue to your celebrations and invitations."}</p>
   <div className="auth-switch" role="group" aria-label="Account access">
    <button type="button" className={mode==="signup"?"auth-tab active":"auth-tab"} onClick={()=>{setMode("signup");setMessage("");setError("");}}>Create account</button>
    <button type="button" className={mode==="signin"?"auth-tab active":"auth-tab"} onClick={()=>{setMode("signin");setMessage("");setError("");}}>Sign in</button>
