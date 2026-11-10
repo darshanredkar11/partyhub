@@ -18,6 +18,7 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [userEmail, setUserEmail] = useState("");
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -30,8 +31,10 @@ export default function Home() {
     setError("");
     try {
       const user = await currentUser();
-      if (!user) { setUserEmail(""); setParties([]); setTotalPartyCount(0); return; }
+      if (!user) { setUserEmail(""); setIsPlatformAdmin(false); setParties([]); setTotalPartyCount(0); return; }
       setUserEmail(user.email ?? "");
+      const { data: adminRow } = await supabase().from("platform_admins").select("user_id").eq("user_id", user.id).maybeSingle();
+      setIsPlatformAdmin(Boolean(adminRow));
       const result = await listHostParties(currentPage, 10);
       setParties(result.parties);
       setTotalPartyCount(result.total);
@@ -82,7 +85,7 @@ export default function Home() {
   const configMissing = !supabaseConfigured();
 
   return <main className="shell">
-    <header className="topbar"><a className="brand" href="/"><span className="brand-mark"><PartyPopper size={20}/></span> partyhub</a><div className="top-actions">{userEmail ? <><span className="login-link">{userEmail}</span><button className="text-btn" onClick={signOut}><LogOut size={15}/> Sign out</button></> : <a className="login-link" href="/login/">Host sign in <ArrowUpRight size={15}/></a>}</div></header>
+    <header className="topbar"><a className="brand" href="/"><span className="brand-mark"><PartyPopper size={20}/></span> partyhub</a><div className="top-actions">{userEmail ? <>{isPlatformAdmin && <a className="login-link" href="/admin/">Admin</a>}<span className="login-link">{userEmail}</span><button className="text-btn" onClick={signOut}><LogOut size={15}/> Sign out</button></> : <a className="login-link" href="/login/">Sign in <ArrowUpRight size={15}/></a>}</div></header>
     <section className="hero"><div className="hero-copy"><div className="eyebrow"><Sparkles size={14}/> GOOD TIMES, WELL PLANNED</div><h1>Bring your people<br/><em>together.</em></h1><p>One little place for the plans, the people and the memories that make a party.</p>{userEmail ? <button className="primary-btn" onClick={()=>setShowCreate(true)}><Plus size={18}/> Plan a celebration</button> : <a className="primary-btn link-btn" href="/login/">Sign in to get started <ArrowUpRight size={16}/></a>}</div><div className="hero-art" aria-hidden="true"><div className="art-orbit orbit-one"/><div className="art-orbit orbit-two"/><div className="art-center">✳</div><span className="floaty f1">🥂</span><span className="floaty f2">🎈</span><span className="floaty f3">🎂</span><span className="floaty f4">✦</span><div className="art-caption">MAKE IT A<br/>NIGHT TO REMEMBER</div></div></section>
     {configMissing && <div className="notice error-notice">Supabase is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to the deployment environment.</div>}
     {error && <div className="notice error-notice" role="alert">{error}</div>}
