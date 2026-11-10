@@ -184,3 +184,33 @@ export async function castMemberAwardVoteByCode(pollId:string,optionId:string,co
  if(error)throw error;
  return data as Awaited<ReturnType<typeof getPublicAwardPoll>>;
 }
+
+
+export type MemberInvitation = {
+ id:string; party_id:string; invited_email:string; status:"pending"|"accepted"|"declined"|"revoked";
+ created_at:string; responded_at:string|null;
+ parties:{id:string;title:string;description:string;party_type:string;starts_at:string;ends_at:string;arrival_from:string|null;arrival_until:string|null;timezone:string;venue_map_url:string|null;poster_url:string|null;cost_amount:number|null;currency:"INR"|"GBP";cost_basis:string;cost_negotiable:boolean;host_id:string};
+};
+export async function listMyInvitations():Promise<MemberInvitation[]>{
+ const user=await currentUser();if(!user)throw new Error("Sign in to view invitations.");
+ const {data,error}=await supabase().from("party_invitations")
+  .select("id,party_id,invited_email,status,created_at,responded_at,parties(id,title,description,party_type,starts_at,ends_at,arrival_from,arrival_until,timezone,venue_map_url,poster_url,cost_amount,currency,cost_basis,cost_negotiable,host_id)")
+  .eq("invited_user_id",user.id).order("created_at",{ascending:false});
+ if(error)throw error;
+ return (data??[]) as unknown as MemberInvitation[];
+}
+export async function invitePartyMember(partyId:string,email:string){
+ const {data,error}=await supabase().rpc("create_party_member_invitation",{p_party_id:partyId,p_email:email});
+ if(error)throw error;return data as string;
+}
+export async function respondToInvitation(invitationId:string,response:"accepted"|"declined"){
+ const {data,error}=await supabase().rpc("respond_to_party_invitation",{p_invitation_id:invitationId,p_response:response});
+ if(error)throw error;return data as string;
+}
+export async function listAttendingParties(){
+ const user=await currentUser();if(!user)return [];
+ const {data,error}=await supabase().from("party_members")
+  .select("party_id,role,status,parties(id,title,description,party_type,starts_at,ends_at,timezone,venue_map_url,poster_url,host_id)")
+  .eq("user_id",user.id).eq("status","accepted").neq("role","host");
+ if(error)throw error;return data??[];
+}
