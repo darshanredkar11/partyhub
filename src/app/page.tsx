@@ -112,7 +112,7 @@ export default function Home() {
         middleContent={<div className="cult-shift-art"><span className="cult-shift-spark">✳</span><strong>MAKE IT<br/><em>memorable.</em></strong><small>YOUR PEOPLE. YOUR MOMENT.</small></div>}
         bottomContent={<div className="cult-shift-bottom"><strong>Good nights start with good people.</strong><p>Bring the plans, the guest list and the memories together in one private space.</p><div className="cult-shift-tags"><span>INVITE</span><span>CELEBRATE</span><span>REMEMBER</span></div></div>}
       />
-    </div></section>
+    </div><div className="hero-note"><span>✳</span> Private by invitation <i/> Made for the people who matter</div></section>
     {configMissing && <div className="notice error-notice">Supabase is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to the deployment environment.</div>}
     {error && <div className="notice error-notice" role="alert">{error}</div>}
     {userEmail && <section className="stats"><div className="stat"><span>YOUR CELEBRATIONS</span><strong>{String(totalPartyCount).padStart(2,"0")}</strong></div><div className="stat"><span>GUESTS RESPONDED</span><strong>{String(total).padStart(2,"0")}</strong></div><div className="stat"><span>CAN'T WAIT TO COME</span><strong>{String(yes).padStart(2,"0")}</strong></div></section>}
