@@ -232,3 +232,21 @@ footer{padding:26px 5%;color:#8a8291}
  .party-card:hover,.primary-btn:hover{transform:none}
 }
 undefined
+/* Cult visual language — invitation and account journeys */
+.invite-page{background:radial-gradient(circle at 12% 8%,#f0eaff 0,transparent 32%),radial-gradient(circle at 92% 90%,#ffe9df 0,transparent 30%),#faf7f1;padding:30px 16px}
+.invite-card{border-radius:28px;border:1px solid #eee5e0;box-shadow:0 28px 90px #30244314}
+.invite-card .brand-mark{background:linear-gradient(145deg,#7655e8,#5034bd);box-shadow:0 8px 20px #6848d82b}
+.invite-poster{border-radius:20px;overflow:hidden}
+.invite-poster-fallback{background:linear-gradient(145deg,#eee8ff,#ffe9df)}
+.invite-details{background:#faf7fc;border:1px solid #f0eaf4;border-radius:17px;padding:17px}
+.rsvp-form{border-top:1px solid #eee8f0}
+.rsvp-form input,.rsvp-form select{border-radius:12px;min-height:46px;border-color:#e7dfeb;background:#fffefa}
+.rsvp-options button{border-radius:14px;transition:transform .2s ease,border-color .2s ease}
+.rsvp-options button:hover{transform:translateY(-1px)}
+.rsvp-options button.selected{border-color:#8068dc;background:#f6f2ff}
+.login-card{max-width:500px}
+.auth-switch{border-radius:99px;background:#f3eff8;padding:4px}
+.auth-tab{border-radius:99px}
+.auth-tab.active{background:#fff;box-shadow:0 3px 12px #33244312}
+.invite-card .primary-btn,.invite-card .secondary-btn{border-radius:99px}
+@media(prefers-reduced-motion:reduce){.rsvp-options button{transition:none}.rsvp-options button:hover{transform:none}}
