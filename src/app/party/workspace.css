@@ -129,3 +129,28 @@
  .workspace-shell .poll-open-actions .guest-link-count{grid-column:auto}
  .workspace-shell .poll-open-actions .text-btn{grid-column:auto}
 }
+
+/* Cult visual language — host workspace */
+.workspace-shell{max-width:1240px;padding-inline:clamp(18px,4vw,54px);color:#211d2b}
+.workspace-hero{gap:clamp(22px,4vw,48px);padding:48px 0 34px}
+.workspace-cover{border-radius:26px;box-shadow:0 18px 48px #34234b14}
+.workspace-title h1{font-size:clamp(38px,5vw,60px);letter-spacing:-2.8px;line-height:1}
+.workspace-meta{gap:12px 18px}
+.workspace-meta span,.workspace-meta a{border-radius:99px;background:#f0ebf8;padding:9px 12px;font-size:12px}
+.workspace-stats{background:#ffffff80;border-block-color:#e9e2da;padding:22px 10px;border-radius:18px}
+.workspace-stats strong{font-size:30px;letter-spacing:-1px}
+.workspace-section{border-color:#e9e2da;padding:42px 0}
+.workspace-section-head h2{font-size:clamp(25px,3vw,34px);letter-spacing:-1.5px}
+.workspace-empty,.guest-table-wrap,.poll-create-panel,.poll-host-card{border-radius:20px;box-shadow:0 12px 34px #2b1d3909}
+.guest-table-wrap{border-color:#ebe4dd}
+.guest-table th{background:#f7f3fa;color:#837891}
+.guest-table td{padding:16px 14px}
+.workspace-text-input{border-radius:12px;min-height:46px}
+.workspace-shell .primary-btn,.workspace-shell .secondary-btn{border-radius:99px}
+@media(max-width:680px){
+ .workspace-shell{padding-inline:17px}
+ .workspace-hero{padding:30px 0 22px;gap:20px}
+ .workspace-cover{height:205px;border-radius:21px}
+ .workspace-stats{padding:13px 6px}
+ .workspace-section{padding:30px 0}
+}
