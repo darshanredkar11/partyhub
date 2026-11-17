@@ -39,3 +39,15 @@
 .vote-methods button{display:flex;align-items:center;gap:6px;padding:9px 13px;border:1px solid #e5deeb;border-radius:10px;background:#fff;color:#554c62;font-size:12px}
 .vote-methods button.chosen{border-color:#8068dc;background:#f2eeff;color:#6248c2}
 .vote-contact-input{width:100%;padding:13px;border:1px solid #e5deeb;border-radius:10px;background:#fff;color:#302b3a;font:inherit;font-size:14px;margin:5px 0}
+
+/* Cult visual language — lightweight, private voting */
+.public-vote-page{background:radial-gradient(circle at 15% 10%,#f0eaff 0,transparent 32%),radial-gradient(circle at 90% 85%,#ffe9df 0,transparent 30%),#faf7f1;padding:28px 16px}
+.public-vote-card{border-radius:28px;border:1px solid #eee5e0;box-shadow:0 28px 90px #30244314;padding:clamp(22px,5vw,38px)}
+.vote-brand .brand-mark{border-radius:14px;background:linear-gradient(145deg,#7655e8,#5034bd);box-shadow:0 8px 20px #6848d82b}
+.vote-event-label{color:#8b73c3}
+.vote-illustration{border-radius:20px;background:linear-gradient(145deg,#eee8ff,#ffe9df);color:#6848d8}
+.vote-option{border-radius:16px;transition:border-color .2s ease,background .2s ease,transform .2s ease}
+.vote-option:hover{transform:translateY(-1px);border-color:#b8a5e9}
+.vote-option.chosen{border-color:#8068dc;background:#f6f2ff}
+.vote-submit{border-radius:99px}
+@media(prefers-reduced-motion:reduce){.vote-option{transition:none}.vote-option:hover{transform:none}}
