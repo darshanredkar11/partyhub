@@ -3,6 +3,8 @@ import { test, expect } from "@playwright/test";
 test("host dashboard directs unauthenticated visitors to password sign in", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Bring your people together/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: "How it works" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Make the plan yours." })).toBeVisible();
   await expect(page.getByRole("link", { name: /Host sign in/ }).first()).toBeVisible();
   await expect(page.getByText("Your celebrations, all in one place.")).toBeVisible();
 });
