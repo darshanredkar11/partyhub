@@ -332,3 +332,12 @@ footer span:first-child{font-weight:900;color:#7661c7}
  .admin-type-row{grid-template-columns:100px 25px 1fr;gap:8px;font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+.hero-note{display:flex;align-items:center;gap:9px;margin-top:20px;color:#c0b7cc;font-size:10px;font-weight:700;letter-spacing:.25px}
+.hero-note span{color:var(--lime);font-size:15px}.hero-note i{width:3px;height:3px;border-radius:50%;background:#8f8499}
+.create-step{display:flex;flex-direction:column;gap:15px}
+.create-step[hidden]{display:none}
+.wizard-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:3px}
+.wizard-actions .full-btn{width:100%}
+@media(max-width:680px){.hero-note{font-size:9px;flex-wrap:wrap;margin-top:15px}.wizard-actions{position:sticky;bottom:-22px;background:#fffefa;padding:12px 0 2px;z-index:2}.wizard-actions .primary-btn{flex:1}.wizard-actions .secondary-btn{min-width:88px}}
