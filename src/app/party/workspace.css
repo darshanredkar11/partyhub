@@ -103,3 +103,9 @@
  .guest-link-list>div{align-items:start}
 }
 @media(prefers-reduced-motion:reduce){.event-photo-grid img{transition:none}.event-photo-grid figure:hover img{transform:none}}
+
+.member-invite-form>p{margin:-7px 0 12px;font-size:11px;color:#81798a}
+.member-invite-input{display:flex;gap:9px;align-items:center}
+.member-invite-input .workspace-text-input{flex:1}
+.success-text{display:block;margin-top:11px;color:#37764d;font-size:11px;font-weight:800}
+@media(max-width:680px){.member-invite-input{flex-direction:column;align-items:stretch}.member-invite-input .primary-btn{width:100%}}
