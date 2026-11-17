@@ -49,6 +49,15 @@ const ShiftCard = React.forwardRef<HTMLDivElement, ShiftCardProps>(
         whileHover={{ scale: 1.02 }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
+        role="button"
+        tabIndex={0}
+        aria-expanded={isHovered}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault()
+            setHovered(value => !value)
+          }
+        }}
         onClick={() => setHovered(value => !value)}
         {...props}
       >
