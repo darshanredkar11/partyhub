@@ -18,9 +18,13 @@ test("login page renders accessible email and password account forms", async ({ 
   await expect(page.getByRole("heading", { name: "Create your account." })).toBeVisible();
   await expect(page.getByLabel("Email address")).toBeVisible();
   await expect(page.getByLabel("Password")).toBeVisible();
-  await expect(page.getByRole("button", { name: /Create account/ })).toBeVisible();
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByRole("button", { name: /^Sign in$/ })).toBeVisible();
+
+  const accountForm = page.locator("form");
+  await expect(accountForm.getByRole("button", { name: /Create account/ })).toBeVisible();
+
+  await page.getByRole("group", { name: "Account access" }).getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByRole("heading", { name: "Welcome back." })).toBeVisible();
+  await expect(accountForm.getByRole("button", { name: /^Sign in$/ })).toBeVisible();
 });
 
 test("dashboard remains usable at a mobile viewport", async ({ page }) => {
