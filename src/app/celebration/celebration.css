@@ -59,3 +59,14 @@
  .celebration-share-actions>*{flex:1;justify-content:center}
 }
 @media(max-width:370px){.celebration-detail-grid{grid-template-columns:1fr}.celebration-art,.celebration-art>img,.celebration-art-fallback{height:190px}}
+
+/* Cult visual language — creation confirmation */
+.celebration-page{width:min(100%,900px);padding:clamp(28px,5vw,54px) 18px 64px}
+.celebration-heading h1{font-size:clamp(38px,6vw,64px);letter-spacing:-3px}
+.celebration-feature{border-radius:26px;border-color:#ebe3dc;box-shadow:0 24px 70px #30244312}
+.celebration-art{background:#f0eaff}
+.celebration-details{padding:clamp(22px,4vw,38px)}
+.detail-icon{border-radius:13px;background:#f0eaff;color:#6848d8}
+.celebration-success{color:#4d8768}
+.celebration-page .primary-btn,.celebration-page .secondary-btn{border-radius:99px}
+@media(max-width:680px){.celebration-feature{border-radius:21px}.celebration-art,.celebration-art>img,.celebration-art-fallback{min-height:240px}.celebration-details{padding:22px}}
