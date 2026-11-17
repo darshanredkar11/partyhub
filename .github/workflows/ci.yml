@@ -1,9 +1,9 @@
 name: PartyHub CI
 on:
   push:
-    branches: [main, initial-partyhub-draft]
+    branches: [main, initial-partyhub-draft, feature/cult-ui-ux-redesign]
   pull_request:
-    branches: [main]
+    branches: [main, initial-partyhub-draft]
 jobs:
   verify:
     runs-on: ubuntu-latest

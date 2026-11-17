@@ -8,6 +8,12 @@ const config: Config = {
         ink: "#171522",
         plum: "#6d4aff",
         coral: "#ff786f",
+        card: "#fffdfa",
+        primary: "#6848d8",
+        "primary-foreground": "#211d2b",
+        muted: "#f1edf5",
+        "muted-foreground": "#777181",
+        accent: "#eee8ff",
         cream: "#fffaf4",
       },
       boxShadow: {
