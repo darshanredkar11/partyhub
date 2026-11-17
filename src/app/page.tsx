@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarDays, Clock3, MapPin, Plus, Sparkles, Users, PartyPopper, Copy, ArrowUpRight, X, LogOut, RefreshCw } from "lucide-react";
+import { ShiftCard } from "@/components/ui/shift-card";
 import { currentUser, createInvite, createParty, listHostParties, uploadPartyPoster, supabase, supabaseConfigured, type PartyRow } from "@/lib/partyhub";
 
 const dateLabel = (value: string) => new Date(value).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
@@ -86,7 +87,15 @@ export default function Home() {
 
   return <main className="shell">
     <header className="topbar home-topbar"><a className="brand" href="/"><span className="brand-mark"><PartyPopper size={20}/></span> partyhub</a><div className="top-actions">{userEmail ? <><a className="home-nav-link" href="/invitations/">Invitations</a>{isPlatformAdmin && <a className="home-nav-link admin-nav-link" href="/admin/">Admin</a>}<span className="home-user-email">{userEmail}</span><button className="text-btn home-signout" onClick={signOut}><LogOut size={15}/> <span>Sign out</span></button></> : <a className="login-link" href="/login/">Sign in <ArrowUpRight size={15}/></a>}</div></header>
-    <section className="hero"><div className="hero-copy"><div className="eyebrow"><Sparkles size={14}/> GOOD TIMES, WELL PLANNED</div><h1>Bring your people<br/><em>together.</em></h1><p>One little place for the plans, the people and the memories that make a party.</p>{userEmail ? <button className="primary-btn" onClick={()=>setShowCreate(true)}><Plus size={18}/> Plan a celebration</button> : <a className="primary-btn link-btn" href="/login/">Sign in to get started <ArrowUpRight size={16}/></a>}</div><div className="hero-art" aria-hidden="true"><div className="art-orbit orbit-one"/><div className="art-orbit orbit-two"/><div className="art-center">✳</div><span className="floaty f1">🥂</span><span className="floaty f2">🎈</span><span className="floaty f3">🎂</span><span className="floaty f4">✦</span><div className="art-caption">MAKE IT A<br/>NIGHT TO REMEMBER</div></div></section>
+    <section className="hero"><div className="hero-copy"><div className="eyebrow"><Sparkles size={14}/> GOOD TIMES, WELL PLANNED</div><h1>Bring your people<br/><em>together.</em></h1><p>One little place for the plans, the people and the memories that make a party.</p>{userEmail ? <button className="primary-btn" onClick={()=>setShowCreate(true)}><Plus size={18}/> Plan a celebration</button> : <a className="primary-btn link-btn" href="/login/">Sign in to get started <ArrowUpRight size={16}/></a>}</div><div className="hero-art">
+      <ShiftCard
+        className="cult-party-preview"
+        topContent={<div className="cult-shift-top"><span>PARTYHUB</span><span>✳ PRIVATE CELEBRATION</span></div>}
+        topAnimateContent={<div className="cult-shift-badge">A LITTLE MAGIC, WELL PLANNED</div>}
+        middleContent={<div className="cult-shift-art"><span className="cult-shift-spark">✳</span><strong>MAKE IT<br/><em>memorable.</em></strong><small>YOUR PEOPLE. YOUR MOMENT.</small></div>}
+        bottomContent={<div className="cult-shift-bottom"><strong>Good nights start with good people.</strong><p>Bring the plans, the guest list and the memories together in one private space.</p><div className="cult-shift-tags"><span>INVITE</span><span>CELEBRATE</span><span>REMEMBER</span></div></div>}
+      />
+    </div></section>
     {configMissing && <div className="notice error-notice">Supabase is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to the deployment environment.</div>}
     {error && <div className="notice error-notice" role="alert">{error}</div>}
     <section className="stats"><div className="stat"><span>YOUR CELEBRATIONS</span><strong>{String(totalPartyCount).padStart(2,"0")}</strong></div><div className="stat"><span>GUESTS RESPONDED</span><strong>{String(total).padStart(2,"0")}</strong></div><div className="stat"><span>CAN'T WAIT TO COME</span><strong>{String(yes).padStart(2,"0")}</strong></div></section>
